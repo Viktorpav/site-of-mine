@@ -1,0 +1,10 @@
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Description: Pavlyshyn S3 bucket from CloudFormation
+    Properties:
+      BucketName: pavlyshyn.space
+Outputs:
+  S3Bucket:
+    Description: Bucket Created by Pavlyshyn.
+    Value: !Ref S3Bucket
