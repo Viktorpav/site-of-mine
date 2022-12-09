@@ -1,0 +1,9 @@
+Description: Deploy ACM for pavlyshyn.space
+
+Resources:
+  cert0:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: 'pavlyshyn.space'
+        - DomainName: pavlyshyn.space
+          HostedZone
