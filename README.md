@@ -1,2 +1,2 @@
 # site-of-mine
-Site of Mine
+Static Site S3 of Mine, fully managed by CloudFormation!
