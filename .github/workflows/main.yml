@@ -1,0 +1,28 @@
+name: S3 Syncing Workflow
+on:
+  push:
+    branches:
+    # Here we choose to deploy only when a push is detected on the main branch
+      - main
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+  # To build the project, take a VM with latest Ubuntu OS for running the next steps
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_region: ${{ secrets.AWS_REGION }}
+        aws_s3_bucket: ${{ secrets.AWS_S3BUCKET_NAME }}
+
+    - name: Deploy content to S3 bucket
+      run: |
+        aws s3 cp ./ s3://$aws_s3_bucket  --recursive --exclude "*" --include index.html --include 404.html    
