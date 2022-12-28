@@ -1,5 +1,5 @@
 name: Deploying ACM for DNS
-on: [workflow_dispatch]
+on: [ workflow_dispatch]
 # Allows you to run this workflow manually from the Actions tab
 
 jobs:
@@ -15,8 +15,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        # In GitHub action possibility to create certificate in all region
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: "us-east-1"
 
     # Deploy to AWS CloudFormation
     - name: Deploy to AWS CloudFormation
