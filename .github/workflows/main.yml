@@ -18,11 +18,10 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws_region: ${{ secrets.AWS_REGION }}
-        aws_s3_bucket: ${{ secrets.AWS_S3BUCKET_NAME }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Deploy content to S3 bucket
       run: |
-        aws s3 cp ./ s3://$aws_s3_bucket  --recursive --exclude "*" --include index.html --include 404.html    
+        aws s3 cp ./ s3://www.pavlyshyn.space  --recursive --exclude "*" --include index.html --include 404.html    
