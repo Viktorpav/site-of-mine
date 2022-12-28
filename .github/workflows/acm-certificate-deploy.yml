@@ -1,12 +1,6 @@
 name: Deploying ACM for DNS
-on:
-  push:
-    branches:
-    # Here we choose to deploy only when a push is detected on the main branch
-      - main
-  
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [workflow_dispatch]
+# Allows you to run this workflow manually from the Actions tab
 
 jobs:
   build:
@@ -21,7 +15,8 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: "eu-central-1"
+        # In GitHub action possibility to create certificate in all region
+        aws-region: ${{ secrets.AWS_REGION }}
 
     # Deploy to AWS CloudFormation
     - name: Deploy to AWS CloudFormation
@@ -29,5 +24,7 @@ jobs:
       with:
         name: mystaticwebsite-acm-certificate
         template: cloudformation/acm-certificate.yaml
-        parameter-overrides: "DomainName=pavlyshyn.space,HostedZoneId=Z0064882QATAQY6LFYUT"
         no-fail-on-empty-changeset: "1"
+        parameter-overrides: >-
+          DomainName=pavlyshyn.space,
+          HostedZoneId=Z0064882QATAQY6LFYUT

@@ -1,12 +1,6 @@
 name: Deploy of S3 and CloudFront
-on:
-  push:
-    branches:
-    # Here we choose to deploy only when a push is detected on the main branch
-      - main
-  
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [workflow_dispatch]
+# Allows you to run this workflow manually from the Actions tab
 
 jobs:
   build:
@@ -32,7 +26,7 @@ jobs:
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
           DomainName=pavlyshyn.space,
-          CertificateManagerArn=arn:aws:acm:us-east-1:788431431124:certificate/4caff333-948d-4186-8122-ac64b79893e7"
+          CertificateManagerArn=arn:aws:acm:eu-central-1:788431431124:certificate/905e49f3-dfb3-4827-adb9-85fbbb017dd5
         
 
 
