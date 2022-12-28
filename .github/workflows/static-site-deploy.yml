@@ -26,7 +26,7 @@ jobs:
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
           DomainName=pavlyshyn.space,
-          CertificateManagerArn=arn:aws:acm:us-east-1:788431431124:certificate/4caff333-948d-4186-8122-ac64b79893e7
+          CertificateManagerArn=arn:aws:acm:us-east-1:788431431124:certificate/fd571306-3a12-4b8b-9b92-9343f8c613ba
         
 
 
