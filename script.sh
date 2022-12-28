@@ -32,7 +32,7 @@ DomainName=pavlyshyn.space \
 CertificateManagerArn=arn:aws:acm:us-east-1:788431431124:certificate/4caff333-948d-4186-8122-ac64b79893e7
 
 # Copy static site to S3 bucket
-aws s3 cp ./ s3://mystaticwebsite-s3-cloudfront \
+aws s3 cp ./ s3://www.pavlyshyn.space \
 --acl public-read \
 --recursive \
 --exclude "*" \
@@ -42,6 +42,5 @@ aws s3 cp ./ s3://mystaticwebsite-s3-cloudfront \
 
 
 
-
 # Clear CloudFront cache
-aws cloudfront create-invalidation --distribution-id=E2046M05Q79E1L --paths /*
+aws cloudfront create-invalidation --distribution-id=E2046M05Q79E1L --paths '/*'
