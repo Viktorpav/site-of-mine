@@ -24,4 +24,4 @@ jobs:
 
     - name: Deploy content to S3 bucket
       run: |
-        aws s3 sync . s3://www.pavlyshyn.space  --recursive --exclude "*" --include index.html --include 404.html    
+        aws s3 sync . s3://www.pavlyshyn.space --exclude "*" --include index.html --include 404.html    
