@@ -84,7 +84,8 @@ Resources:
                       #!!! for buckets created in US East (N. Virginia) region without Regional "S3Bucket.DomainName"
                       DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
-                PriceClass: PriceClass_All
+                # there are PriceClass_ALL or PriceClass_200/_100
+                PriceClass: PriceClass_100
                 ViewerCertificate:
                     AcmCertificateArn: !Ref CertificateManagerArn
                     MinimumProtocolVersion: TLSv1.1_2016

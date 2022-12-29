@@ -13,30 +13,29 @@ git pull origin main
 aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space | jq -r '.HostedZones| .[] | .Id' | cut -d/ -f3
 
 
-# Running CloudFormation stack to create cerificate in us-east-1 only
-cd cloudformation
-
+# Running CloudFormation stack to create cerificate in us-east-1 only and generate HostedZoneId
+HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space --query "HostedZones[].Id" --output=text | cut -d/ -f3)
 aws cloudformation deploy \
---template-file acm-certificate.yaml \
+--template-file cloudformation/acm-certificate.yaml \
 --stack-name mystaticwebsite-acm-certificate \
 --region us-east-1 \
 --parameter-overrides \
 DomainName=pavlyshyn.space \
-HostedZoneId=Z0064882QATAQY6LFYUT
+HostedZoneId=$HostedZoneId
 
 
 # Create S3 buckets for static site
-
+CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='pavlyshyn.space'].CertificateArn)[0]" --output=text)
 aws cloudformation deploy \
 --template-file cloudformation/static-site.yaml \
 --stack-name mystaticwebsite-s3-cloudfront \
 --region eu-central-1 \
 --parameter-overrides \
 DomainName=pavlyshyn.space \
-CertificateManagerArn=arn:aws:acm:us-east-1:788431431124:certificate/4caff333-948d-4186-8122-ac64b79893e7
+CertificateManagerArn=$CertificateManagerArn
 
 # Copy static site to S3 bucket
-aws s3 cp ./ s3://www.pavlyshyn.space \
+aws s3 cp ./ s3://pavlyshyn.space \
 --acl public-read \
 --recursive \
 --exclude "*" \
@@ -48,4 +47,4 @@ aws s3 cp ./ s3://www.pavlyshyn.space \
 
 # Clear CloudFront cache
 DistributionId=$(aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='pavlyshyn.space'].id" --output text)
-aws cloudfront create-invalidation --distribution-id=$DistributionId --paths '/*'
+aws cloudfront create-invalidation --distribution-id $DistributionId --paths '/*'

@@ -32,4 +32,4 @@ jobs:
     - name: Deploy content to S3 bucket
       run: |
         aws s3 sync . s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html
-        aws cloudfront create-invalidation ${{ DistributionId }} --paths '/*'
+        aws cloudfront create-invalidation --distribution-id $DistributionId --paths '/*'

@@ -20,7 +20,7 @@ jobs:
     # Set ENV var for HostedZoneId
     - name: Set tag var
       id: vars
-      run: echo "HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space --query "HostedZones[].Id" --output=text | cut -d/ -f3" >> $GITHUB_ENV
+      run: echo "HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space --query "HostedZones[].Id" --output=text | cut -d/ -f3) >> $GITHUB_ENV
 
     # Deploy to AWS CloudFormation
     - name: Deploy to AWS CloudFormation
