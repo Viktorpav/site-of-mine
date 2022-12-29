@@ -17,6 +17,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: "us-east-1"
 
+    - name: Set tag var
+      id: vars
+      run: echo "HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space | jq -r '.HostedZones| .[] | .Id' | cut -d/ -f3)" >> $GITHUB_ENV
+
     # Deploy to AWS CloudFormation
     - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-github-deploy@v1
@@ -26,4 +30,4 @@ jobs:
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
           DomainName=pavlyshyn.space,
-          HostedZoneId=Z0064882QATAQY6LFYUT
+          HostedZoneId=${{ env.HostedZoneId }}
