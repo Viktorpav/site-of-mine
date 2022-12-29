@@ -15,6 +15,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@master
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -22,7 +23,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    # Set ENV var for DistributionId
+    - name: Set tag var
+      id: vars
+      run: echo "DistributionId=$(aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='pavlyshyn.space'].id" --output text)" >> $GITHUB_ENV
+
+
     - name: Deploy content to S3 bucket
       run: |
-        aws s3 sync . s3://www.pavlyshyn.space --exclude "*" --include index.html --include 404.html
-        aws cloudfront create-invalidation --distribution-id=E2046M05Q79E1L --paths '/*'    
+        aws s3 sync . s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html
+        aws cloudfront create-invalidation ${{ DistributionId }} --paths '/*'

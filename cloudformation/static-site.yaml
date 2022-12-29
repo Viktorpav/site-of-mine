@@ -15,7 +15,7 @@ Resources:
         DeletionPolicy: Delete
         Properties:
             AccessControl: PublicRead
-            BucketName: !Sub "www.${DomainName}"
+            BucketName: !Sub "${DomainName}"
             WebsiteConfiguration:
                 ErrorDocument: "404.html"
                 IndexDocument: "index.html"
@@ -59,7 +59,7 @@ Resources:
                         QueryString: true
                     MaxTTL: 31536000
                     SmoothStreaming: false
-                    TargetOriginId: !Sub "S3-${AWS::StackName}"
+                    TargetOriginId: !Sub "${DomainName}"
                     ViewerProtocolPolicy: "redirect-to-https"
                     FunctionAssociations:
                         - EventType: viewer-request
@@ -83,7 +83,7 @@ Resources:
                       #Bucket website endpoint without http://
                       #!!! for buckets created in US East (N. Virginia) region without Regional "S3Bucket.DomainName"
                       DomainName: !GetAtt S3Bucket.RegionalDomainName
-                      Id: !Sub "S3-${AWS::StackName}"
+                      Id: !Sub "${DomainName}"
                 PriceClass: PriceClass_All
                 ViewerCertificate:
                     AcmCertificateArn: !Ref CertificateManagerArn
@@ -94,10 +94,10 @@ Resources:
         Type: AWS::CloudFront::Function
         Properties:
             AutoPublish: true
-            Name: !Sub "${AWS::StackName}-redirects"
+            Name: !Sub "${DomainName}-redirects"
             # add the config, even if optional, the stack creation will thrown InternalFailure error otherwise
             FunctionConfig:
-                Comment: !Sub "Redirect to ${DomainName}"
+                Comment: !Sub "Redirect to www.${DomainName}"
                 Runtime: cloudfront-js-1.0
             FunctionCode: !Sub |
                 function handler(event) {
