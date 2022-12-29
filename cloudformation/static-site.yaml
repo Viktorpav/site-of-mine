@@ -94,7 +94,7 @@ Resources:
         Type: AWS::CloudFront::Function
         Properties:
             AutoPublish: true
-            Name: !Sub "${DomainName}-redirects"
+            Name: !Sub "${AWS::StackName}-redirects"
             # add the config, even if optional, the stack creation will thrown InternalFailure error otherwise
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"

@@ -9,6 +9,10 @@ git pull origin main
 # Register a Hosted Zone in Route53
 
 
+# Fetch HostedZoneId from Route53
+aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.space | jq -r '.HostedZones| .[] | .Id' | cut -d/ -f3
+
+
 # Running CloudFormation stack to create cerificate in us-east-1 only
 cd cloudformation
 
@@ -43,4 +47,5 @@ aws s3 cp ./ s3://www.pavlyshyn.space \
 
 
 # Clear CloudFront cache
-aws cloudfront create-invalidation --distribution-id=E2046M05Q79E1L --paths '/*'
+DistributionId=$(aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='pavlyshyn.space'].id" --output text)
+aws cloudfront create-invalidation --distribution-id=$DistributionId --paths '/*'
