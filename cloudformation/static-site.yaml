@@ -58,6 +58,7 @@ Resources:
                             Forward: none
                         QueryString: true
                     MaxTTL: 31536000
+                    MinTTL: 0
                     SmoothStreaming: false
                     TargetOriginId: !Sub "${DomainName}"
                     ViewerProtocolPolicy: "redirect-to-https"
