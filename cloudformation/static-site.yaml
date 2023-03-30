@@ -36,7 +36,6 @@ Resources:
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
-                Version: "2012-10-17"
                 Statement:
                     - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
                       Effect: "Allow"
@@ -53,8 +52,7 @@ Resources:
                 Name: !Ref DomainName
                 SigningBehavior: always
                 SigningProtocol: v4
-                s3:
-                    CanonicalUserId: !GetAtt CloudFrontDistribution.DomainNameWithWildcard
+                OriginAccessControlOriginType: s3
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
