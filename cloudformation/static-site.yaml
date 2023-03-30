@@ -15,6 +15,7 @@ Resources:
         DeletionPolicy: Retain
         UpdateReplacePolicy: Retain
         Properties:
+            BucketName: !Sub "${DomainName}"
             BucketEncryption:
                 ServerSideEncryptionConfiguration: 
                 - ServerSideEncryptionByDefault: 
@@ -24,10 +25,6 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
-            BucketName: !Sub "${DomainName}"
-            # WebsiteConfiguration:
-            #     ErrorDocument: "404.html"
-            #     IndexDocument: "index.html"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
