@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploy a static site
 
 Parameters:
@@ -8,6 +8,7 @@ Parameters:
     CertificateManagerArn:
         Description: Certificate locater
         Type: String
+        Default: ""
 
 Resources:
     S3Bucket:
@@ -35,11 +36,12 @@ Resources:
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
+                Version: "2012-10-17"
                 Statement:
                     - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
                       Effect: "Allow"
                       Action: "s3:GetObject"
-                      Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, '/*']]
+                      Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
                       Principal:
                         CanonicalUser: !GetAtt CloudFrontDistribution.DomainNameWithWildcard
 
@@ -49,9 +51,10 @@ Resources:
             OriginAccessControlConfig:
                 Description: Default Origin Access Control
                 Name: !Ref DomainName
-                OriginAccessControlOriginType: s3
                 SigningBehavior: always
-                SigningProtocol: sigv4
+                SigningProtocol: v4
+                s3:
+                    CanonicalUserId: !GetAtt CloudFrontDistribution.DomainNameWithWildcard
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
@@ -73,7 +76,7 @@ Resources:
                         - GET
                         - HEAD
                     Compress: true
-                    DefaultTTL: 86400
+                    DefaultTTL: 3600
                     ForwardedValues:
                         Cookies:
                             Forward: none
@@ -91,20 +94,17 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
-                    - CustomOriginConfig:
-                          HTTPPort: 80
-                          HTTPSPort: 443
-                          OriginKeepaliveTimeout: 5
-                          # keep http-only to avoid 504 errors after stack creation
-                          OriginProtocolPolicy: "http-only"
-                          OriginReadTimeout: 30
-                          OriginSSLProtocols:
-                              - TLSv1
-                              - TLSv1.1
-                              - TLSv1.2
+                    # - CustomOriginConfig:
+                    #       HTTPPort: 80
+                    #       HTTPSPort: 443
+                    #       OriginKeepaliveTimeout: 5
+                    #       # keep http-only to avoid 504 errors after stack creation
+                    #       OriginProtocolPolicy: "http-only"
+                    #       OriginReadTimeout: 30
+                    #       OriginSSLProtocols: TLSv1.2
                       #Bucket website endpoint without http://
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-                      DomainName: !GetAtt S3Bucket.RegionalDomainName
+                    - DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
                       OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 # there are PriceClass_ALL or PriceClass_200/_100
