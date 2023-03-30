@@ -8,7 +8,6 @@ Parameters:
     CertificateManagerArn:
         Description: Certificate locater
         Type: String
-        Default: ""
 
 Resources:
     S3Bucket:
@@ -104,7 +103,10 @@ Resources:
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
                     - DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
+                      S3OriginConfig:
+                        OriginAccessIdentity: ''
                       OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
