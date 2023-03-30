@@ -52,7 +52,7 @@ Resources:
                         Service: cloudfront.amazonaws.com
                       Condition:
                         StringEquals:
-                            AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${AssetsDistribution}
+                            AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
