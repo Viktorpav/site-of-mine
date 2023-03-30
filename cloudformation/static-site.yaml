@@ -12,7 +12,7 @@ Parameters:
 Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
-        DeletionPolicy: Retain
+        DeletionPolicy: Delete
         Properties:
             BucketName: !Sub "${DomainName}"
             BucketEncryption:
@@ -24,6 +24,11 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
+            WebsiteConfiguration:
+                IndexDocument: index.html
+                ErrorDocument: 404.html
+            VersioningConfiguration:
+                Status: Suspended
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -31,15 +36,13 @@ Resources:
             Bucket: !Ref S3Bucket
             PolicyDocument:
                 Statement:
-                    - Effect: "Allow"
+                    - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
+                      Effect: "Allow"
                       Action: "s3:GetObject"
-                      Resource: !Sub "${S3Bucket.Arn}/*"
+                      Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, '/*']]
                       Principal:
-                        Service: cloudfront.amazonaws.com
-                      Condition:
-                        StringEquals:
-                            AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
-    
+                        CanonicalUser: !GetAtt CloudFrontDistribution.DomainNameWithWildcard
+
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
         Properties: 
