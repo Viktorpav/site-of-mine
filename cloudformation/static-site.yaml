@@ -13,7 +13,6 @@ Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
         DeletionPolicy: Retain
-        UpdateReplacePolicy: Retain
         Properties:
             BucketName: !Sub "${DomainName}"
             BucketEncryption:
@@ -109,7 +108,7 @@ Resources:
                 PriceClass: PriceClass_100
                 ViewerCertificate:
                     AcmCertificateArn: !Ref CertificateManagerArn
-                    MinimumProtocolVersion: TLSv1.3_2018
+                    MinimumProtocolVersion: TLSv1.2_2021
                     SslSupportMethod: sni-only
 
     RedirectFunction:
