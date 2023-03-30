@@ -12,25 +12,47 @@ Parameters:
 Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
-        DeletionPolicy: Delete
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
         Properties:
-            AccessControl: PublicRead
+            BucketEncryption:
+                ServerSideEncryptionConfiguration: 
+                - ServerSideEncryptionByDefault: 
+                    SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration: 
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
             BucketName: !Sub "${DomainName}"
             WebsiteConfiguration:
                 ErrorDocument: "404.html"
                 IndexDocument: "index.html"
+    
+    CloudFrontOriginAccessControl:
+        Type: AWS::CloudFront::OriginAccessControl
+        Properties: 
+            OriginAccessControlConfig:
+                Description: Default Origin Access Control
+                Name: !Ref DomainName
+                OriginAccessControlOriginType: s3
+                SigningBehavior: always
+                SigningProtocol: sigv4
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
-                Version: "2012-10-17"
                 Statement:
                     - Effect: "Allow"
                       Action: "s3:GetObject"
-                      Principal: "*"
                       Resource: !Sub "${S3Bucket.Arn}/*"
+                      Principal:
+                        Service: cloudfront.amazonaws.com
+                      Condition:
+                        StringEquals:
+                            AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${AssetsDistribution}
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
@@ -69,6 +91,7 @@ Resources:
                 Enabled: true
                 HttpVersion: http2
                 IPV6Enabled: true
+                OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 Origins:
                     - CustomOriginConfig:
                           HTTPPort: 80
@@ -82,14 +105,14 @@ Resources:
                               - TLSv1.1
                               - TLSv1.2
                       #Bucket website endpoint without http://
-                      #!!! for buckets created in US East (N. Virginia) region without Regional "S3Bucket.DomainName"
+                      #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
                       DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
                     AcmCertificateArn: !Ref CertificateManagerArn
-                    MinimumProtocolVersion: TLSv1.1_2016
+                    MinimumProtocolVersion: TLSv1.3_2018
                     SslSupportMethod: sni-only
 
     RedirectFunction:

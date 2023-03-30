@@ -9,10 +9,12 @@ The idea to create a skillet of fully automated flow of creating static website,
 
 1. [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) :shipit:
 2. [Configuration of AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html) *insert your own AWS account values as described in the link.*
-3. Create Hosted zone record in Route53 
+3. Create Hosted zone record in Route53
+``` 
 aws route53 create-hosted-zone --name <your domain name> \
 --caller-reference <any unique string>\
---hosted-zone-config Comment='using aws cli',PrivateZone=false \
+--hosted-zone-config Comment='using aws cli',PrivateZone=false
+```
 4. [Add hosted zone records of NS to DNS provider(move to AWS records) or choose and create in AWS](https://www.virtuallyboring.com/migrate-godaddy-domain-and-dns-to-aws-route-53/)
 
 5. Get project from GitHub:
@@ -20,9 +22,9 @@ aws route53 create-hosted-zone --name <your domain name> \
 git clone https://github.com/Viktorpav/site-of-mine.git
 cd site-of-mine
 ```
-6. Execute script.sh to initiate the project and infrastructure
-#-In case of --profile need, add to each command
-#--In case of first run with 2 paramiter
+6. Execute script.sh to initiate the project and infrastructure <br />
+#-In case of --profile need, add to each command <br />
+#--In case of first run with 2 paramiter <br />
 #---Run - ./script.sh <domain name> <any uniq value>
 
 —————
@@ -31,9 +33,7 @@ cd site-of-mine
 <p>
 
 #### Structure of the project
-For example, Mermaid can render flow charts, sequence diagrams, pie charts and more. For more information, see the Mermaid documentation (https://mermaid-js.github.io/mermaid/#/).
-```mermaid
-graph TD;
+```
     User-->GoDady Domain DNS;
     GoDady Domain DNS-->Route53 Hosted Zone;
     Route53 Hosted Zone-->CloudFront CDN Disribution;
@@ -60,11 +60,11 @@ graph TD;
 
 
 - [x] Automate of fetching info:
- 	HostedZoneId - in acm-certificate cli
+    - HostedZoneId - in acm-certificate cli
 
-	Certificate Founding - in static-site cli
+    - Certificate Founding - in static-site cli
 	
-	--distribution-id=E2046M05Q79E1L - in s3 sync cli
+	- --distribution-id=E2046M05Q79E1L - in s3 sync cli
 
 
 
@@ -75,4 +75,4 @@ graph TD;
 
 
 
-AWS Amplify Console for S3 static siteDocumentation:
+- [ ] AWS Amplify Console for S3 static siteDocumentation:

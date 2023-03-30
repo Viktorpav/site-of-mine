@@ -1,4 +1,2 @@
-# Distribution / packaging
-media
 .DS_Store
-*.pem
+cdk-python
