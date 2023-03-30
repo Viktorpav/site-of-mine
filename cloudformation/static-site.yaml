@@ -51,7 +51,7 @@ Resources:
                 Description: Default Origin Access Control
                 Name: !Ref DomainName
                 SigningBehavior: always
-                SigningProtocol: v4
+                SigningProtocol: sigv4
                 OriginAccessControlOriginType: s3
 
     CloudFrontDistribution:
