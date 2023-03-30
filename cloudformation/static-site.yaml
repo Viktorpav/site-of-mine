@@ -25,19 +25,9 @@ Resources:
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
             BucketName: !Sub "${DomainName}"
-            WebsiteConfiguration:
-                ErrorDocument: "404.html"
-                IndexDocument: "index.html"
-    
-    CloudFrontOriginAccessControl:
-        Type: AWS::CloudFront::OriginAccessControl
-        Properties: 
-            OriginAccessControlConfig:
-                Description: Default Origin Access Control
-                Name: !Ref DomainName
-                OriginAccessControlOriginType: s3
-                SigningBehavior: always
-                SigningProtocol: sigv4
+            # WebsiteConfiguration:
+            #     ErrorDocument: "404.html"
+            #     IndexDocument: "index.html"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -53,6 +43,16 @@ Resources:
                       Condition:
                         StringEquals:
                             AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
+    
+    CloudFrontOriginAccessControl:
+        Type: AWS::CloudFront::OriginAccessControl
+        Properties: 
+            OriginAccessControlConfig:
+                Description: Default Origin Access Control
+                Name: !Ref DomainName
+                OriginAccessControlOriginType: s3
+                SigningBehavior: always
+                SigningProtocol: sigv4
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
@@ -91,7 +91,6 @@ Resources:
                 Enabled: true
                 HttpVersion: http2
                 IPV6Enabled: true
-                OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 Origins:
                     - CustomOriginConfig:
                           HTTPPort: 80
@@ -108,6 +107,9 @@ Resources:
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
                       DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
+                      S3OriginConfig:
+                        OriginAccessIdentity: ''
+                      OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
