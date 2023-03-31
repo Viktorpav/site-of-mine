@@ -35,13 +35,14 @@ Resources:
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
+                Version: "2012-10-17"
                 Statement:
                     - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
                       Effect: "Allow"
                       Action: "s3:GetObject"
                       Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
                       Principal:
-                        CanonicalUser: !GetAtt CloudFrontDistribution.DomainNameWithWildcard
+                        CanonicalUser: !GetAtt CloudFrontDistribution
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
@@ -60,11 +61,11 @@ Resources:
                 Aliases:
                     - !Ref DomainName
                     - !Sub "www.${DomainName}"
-                CustomErrorResponses:
-                    - ErrorCachingMinTTL: 60
-                      ErrorCode: 404
-                      ResponseCode: 404
-                      ResponsePagePath: "/404.html"
+                # CustomErrorResponses:
+                #     - ErrorCachingMinTTL: 60
+                #       ErrorCode: 404
+                #       ResponseCode: 404
+                #       ResponsePagePath: "/404.html"
                 DefaultCacheBehavior:
                     AllowedMethods:
                         - GET
