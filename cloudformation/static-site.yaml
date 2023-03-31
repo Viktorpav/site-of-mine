@@ -42,7 +42,10 @@ Resources:
                       Action: "s3:GetObject"
                       Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
                       Principal:
-                        CanonicalUser: !GetAtt CloudFrontDistribution.DomainName
+                        Service: cloudfront.amazonaws.com
+                      Condition:
+                        StringEquals:
+                        AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
