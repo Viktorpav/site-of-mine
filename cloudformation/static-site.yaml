@@ -42,7 +42,7 @@ Resources:
                       Action: "s3:GetObject"
                       Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
                       Principal:
-                        CanonicalUser: !GetAtt CloudFrontDistribution.S3CanonicalUserId
+                        CanonicalUser: !GetAtt CloudFrontDistribution.DomainName
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
