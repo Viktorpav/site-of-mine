@@ -27,8 +27,6 @@ Resources:
             WebsiteConfiguration:
                 IndexDocument: index.html
                 ErrorDocument: 404.html
-            VersioningConfiguration:
-                Status: Suspended
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -64,11 +62,11 @@ Resources:
                 Aliases:
                     - !Ref DomainName
                     - !Sub "www.${DomainName}"
-                # CustomErrorResponses:
-                #     - ErrorCachingMinTTL: 60
-                #       ErrorCode: 404
-                #       ResponseCode: 404
-                #       ResponsePagePath: "/404.html"
+                CustomErrorResponses:
+                    - ErrorCachingMinTTL: 60
+                      ErrorCode: 404
+                      ResponseCode: 404
+                      ResponsePagePath: "/404.html"
                 DefaultCacheBehavior:
                     AllowedMethods:
                         - GET
@@ -105,12 +103,12 @@ Resources:
                     #       OriginSSLProtocols: TLSv1.2
                       #Bucket website endpoint without http://
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-                    - DomainName: !GetAtt S3Bucket.RegionalDomainName
+                      #DomainName: !GetAtt S3Bucket.RegionalDomainName
+                    - DomainName: !GetAtt S3Bucket.WebsiteURL
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
                         OriginAccessIdentity: ''
                       OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
-
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
