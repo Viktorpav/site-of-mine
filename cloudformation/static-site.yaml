@@ -105,7 +105,7 @@ Resources:
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
                       #DomainName: !GetAtt S3Bucket.RegionalDomainName
                     #- DomainName: !GetAtt S3Bucket.WebsiteURL
-                    - DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
+                    - DomainName: !Sub "${DomainName}.s3-website.eu-central-1.amazonaws.com"
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
                         OriginAccessIdentity: ''
