@@ -27,6 +27,12 @@ Resources:
             WebsiteConfiguration:
                 IndexDocument: index.html
                 ErrorDocument: 404.html
+                RoutingRules:
+                    - RoutingRuleCondition:
+                          HttpErrorCodeReturnedEquals: "404"
+                      RedirectRule:
+                          HostName: !Ref DomainName
+                          ReplaceKeyPrefixWith: "#!/404/"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -93,18 +99,6 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
-                    # - CustomOriginConfig:
-                    #       HTTPPort: 80
-                    #       HTTPSPort: 443
-                    #       OriginKeepaliveTimeout: 5
-                    #       # keep http-only to avoid 504 errors after stack creation
-                    #       OriginProtocolPolicy: "http-only"
-                    #       OriginReadTimeout: 30
-                    #       OriginSSLProtocols: TLSv1.2
-                      #Bucket website endpoint without http://
-                      #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-                      #DomainName: !GetAtt S3Bucket.RegionalDomainName
-                    #- DomainName: !GetAtt S3Bucket.WebsiteURL
                     - DomainName: !Sub "${DomainName}.s3-website.eu-central-1.amazonaws.com"
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
@@ -168,3 +162,12 @@ Outputs:
         Description: URL for website hosted on S3
     CloudfrontDomainName:
         Value: !GetAtt CloudFrontDistribution.DomainName
+
+
+#Origin comments
+#       # keep http-only to avoid 504 errors after stack creation
+#       OriginProtocolPolicy: "http-only"
+    #Bucket website endpoint without http://
+    #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
+    #DomainName: !GetAtt S3Bucket.RegionalDomainName
+#- DomainName: !GetAtt S3Bucket.WebsiteURL
