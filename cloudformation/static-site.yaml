@@ -99,7 +99,15 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
-                    - DomainName: !Sub "${DomainName}.s3-website.eu-central-1.amazonaws.com"
+                    - CustomOriginConfig:
+                        HTTPPort: 80
+                        HTTPSPort: 443
+                        OriginKeepaliveTimeout: 5
+                        # keep http-only to avoid 504 errors after stack creation
+                        OriginProtocolPolicy: "http-only"
+                        OriginReadTimeout: 30
+                        OriginSSLProtocols: TLSv1.2
+                      DomainName: !Sub "${DomainName}.s3-website.eu-central-1.amazonaws.com"
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
                         OriginAccessIdentity: ''
