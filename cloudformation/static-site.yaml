@@ -40,7 +40,8 @@ Resources:
                     - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
                       Effect: "Allow"
                       Action: "s3:GetObject"
-                      Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
+                      #Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket]]
+                      Resource: !Sub ${S3Bucket.Arn}/*
                       Principal:
                         Service: cloudfront.amazonaws.com
                       Condition:
