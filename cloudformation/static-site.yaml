@@ -58,15 +58,9 @@ Resources:
                         Bool:
                             "aws:SecureTransport": false
 
-    CloudFrontOAI:
-        Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-        Properties:
-          CloudFrontOriginAccessIdentityConfig:
-            Comment: "Access identity for CloudFront distribution"
-
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
-        DependsOn: [S3Bucket, CloudFrontOAI]
+        DependsOn: [S3Bucket]
         Properties:
             DistributionConfig:
                 Aliases:
@@ -94,8 +88,6 @@ Resources:
                     MinTTL: 0
                     SmoothStreaming: false
                     TargetOriginId: !Sub "${DomainName}"
-                    #TargetOriginId: !Sub "${DomainName}-s3"
-                    #TargetOriginId: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                     ViewerProtocolPolicy: "redirect-to-https"
                     FunctionAssociations:
                         - EventType: viewer-request
@@ -107,8 +99,7 @@ Resources:
                 Origins:
                     - DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                       Id: !Sub "${DomainName}"
-                      S3OriginConfig:
-                        OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
+                      OriginProtocolPolicy: "https-only"
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
