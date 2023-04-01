@@ -51,15 +51,11 @@ Resources:
                         StringEquals:
                             AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-    # CloudFrontOriginAccessControl:
-    #     Type: AWS::CloudFront::OriginAccessControl
-    #     Properties: 
-    #         OriginAccessControlConfig:
-    #             Description: Default Origin Access Control
-    #             Name: !Ref DomainName
-    #             SigningBehavior: always
-    #             SigningProtocol: sigv4
-    #             OriginAccessControlOriginType: s3
+    CloudFrontOAI:
+        Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+        Properties:
+        CloudFrontOriginAccessIdentityConfig:
+            Comment: "Access identity for CloudFront distribution"
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
@@ -99,20 +95,10 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
-                    - CustomOriginConfig:
-                        HTTPPort: 80
-                        HTTPSPort: 443
-                        # keep http-only to avoid 504 errors after stack creation
-                        OriginProtocolPolicy: "https-only"
-                      #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-                    #   DomainName: !GetAtt S3Bucket.RegionalDomainName
-                    #   DomainName: !GetAtt S3Bucket.WebsiteURL
-                      DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
-                    #   DomainName: pavlyshyn.space.s3-website.eu-central-1.amazonaws.com
+                    - DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                       Id: !Sub "${DomainName}"
-                    #   S3OriginConfig:
-                    #     OriginAccessIdentity: ''
-                    #   OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+                      S3OriginConfig:
+                        OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
@@ -173,10 +159,10 @@ Outputs:
         Value: !GetAtt CloudFrontDistribution.DomainName
 
 
-#Origin comments
+#Origin comments for OAC
+#!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
 #DomainName: !GetAtt S3Bucket.RegionalDomainName
 #DomainName: !GetAtt S3Bucket.WebsiteURL
-
 
 # If I want to have OAC need to add to Origin 
                     #   S3OriginConfig:
@@ -192,3 +178,10 @@ Outputs:
     #             SigningBehavior: always
     #             SigningProtocol: sigv4
     #             OriginAccessControlOriginType: s3
+
+#Origin comments S3 website endpoint
+                    # - CustomOriginConfig:
+                    #     HTTPPort: 80
+                    #     HTTPSPort: 443
+                    #     # keep http-only to avoid 504 errors after stack creation
+                    #     OriginProtocolPolicy: "https-only"
