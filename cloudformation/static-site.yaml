@@ -53,7 +53,7 @@ Resources:
                     - Effect: Deny
                       Principal: "*"
                       Action: "s3:*"
-                      Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+                      Resource: !Sub ${S3Bucket.Arn}/*
                       Condition:
                         Bool:
                             "aws:SecureTransport": false
@@ -61,11 +61,12 @@ Resources:
     CloudFrontOAI:
         Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
         Properties:
-        CloudFrontOriginAccessIdentityConfig:
+          CloudFrontOriginAccessIdentityConfig:
             Comment: "Access identity for CloudFront distribution"
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
+        DependsOn: [S3Bucket, CloudFrontOAI]
         Properties:
             DistributionConfig:
                 Aliases:
