@@ -93,9 +93,9 @@ Resources:
                     MaxTTL: 31536000
                     MinTTL: 0
                     SmoothStreaming: false
-                    #TargetOriginId: !Sub "${DomainName}"
+                    TargetOriginId: !Sub "${DomainName}"
                     #TargetOriginId: !Sub "${DomainName}-s3"
-                    TargetOriginId: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
+                    #TargetOriginId: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                     ViewerProtocolPolicy: "redirect-to-https"
                     FunctionAssociations:
                         - EventType: viewer-request
