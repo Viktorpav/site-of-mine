@@ -60,7 +60,7 @@ Resources:
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
-        DependsOn: [S3Bucket]
+        DependsOn: S3Bucket
         Properties:
             DistributionConfig:
                 Aliases:
