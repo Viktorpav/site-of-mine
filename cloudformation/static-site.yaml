@@ -51,15 +51,15 @@ Resources:
                         StringEquals:
                             AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
-    CloudFrontOriginAccessControl:
-        Type: AWS::CloudFront::OriginAccessControl
-        Properties: 
-            OriginAccessControlConfig:
-                Description: Default Origin Access Control
-                Name: !Ref DomainName
-                SigningBehavior: always
-                SigningProtocol: sigv4
-                OriginAccessControlOriginType: s3
+    # CloudFrontOriginAccessControl:
+    #     Type: AWS::CloudFront::OriginAccessControl
+    #     Properties: 
+    #         OriginAccessControlConfig:
+    #             Description: Default Origin Access Control
+    #             Name: !Ref DomainName
+    #             SigningBehavior: always
+    #             SigningProtocol: sigv4
+    #             OriginAccessControlOriginType: s3
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
@@ -99,12 +99,17 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
+                    - CustomOriginConfig:
+                        HTTPPort: 80
+                        HTTPSPort: 443
+                        # keep http-only to avoid 504 errors after stack creation
+                        OriginProtocolPolicy: "https-only"
                       #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-                    - DomainName: !GetAtt S3Bucket.RegionalDomainName
+                      DomainName: !GetAtt S3Bucket.RegionalDomainName
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
                         OriginAccessIdentity: ''
-                      OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+                      #OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
