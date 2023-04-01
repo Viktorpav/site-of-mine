@@ -99,7 +99,10 @@ Resources:
                 Origins:
                     - DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                       Id: !Sub "${DomainName}"
-                      OriginProtocolPolicy: "https-only"
+                      CustomOriginConfig:
+                        HTTPPort: 80
+                        HTTPSPort: 443
+                        OriginProtocolPolicy: "https-only"
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
