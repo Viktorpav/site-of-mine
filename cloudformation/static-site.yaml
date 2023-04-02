@@ -50,14 +50,14 @@ Resources:
                             "aws:SecureTransport": false
     
     CloudFrontOriginAccessControl:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties: 
-        OriginAccessControlConfig:
-            Description: Default Origin Access Control
-            Name: !Ref DomainName
-            SigningBehavior: always
-            SigningProtocol: sigv4
-            OriginAccessControlOriginType: s3
+        Type: AWS::CloudFront::OriginAccessControl
+        Properties: 
+            OriginAccessControlConfig:
+                Description: Default Origin Access Control
+                Name: !Ref DomainName
+                SigningBehavior: always
+                SigningProtocol: sigv4
+                OriginAccessControlOriginType: s3
     
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
