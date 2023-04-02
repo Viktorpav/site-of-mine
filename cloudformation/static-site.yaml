@@ -120,10 +120,17 @@ Resources:
                 Comment: !Sub "Redirect to www.${DomainName}"
                 Runtime: cloudfront-js-1.0
             FunctionCode: !Sub |
+                // This function redirects incoming requests to the equivalent URL with "www." in the host header
+
                 function handler(event) {
+                  try {
+                    // Extract the incoming request from the event object
                     var request = event.request;
+                    
+                    // Extract the host header from the request object
                     var host = request.headers.host.value;
 
+                    // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
                         return {
                             statusCode: 301,
@@ -133,53 +140,40 @@ Resources:
                             },
                         };
                     }
+
                     return request;
+                  } catch (err) {
+                    console.error(err);
+
+                    // If an error occurs, return a 500 Internal Server Error response with the error message in the response body
+                    return {
+                        statusCode: 500,
+                        statusDescription: "Internal Server Error",
+                        headers: {
+                            "content-type": { value: "text/plain" },
+                        },
+                        body: "An error occurred: " + err.message,
+                    };
+                  }
                 }
 
     Route53RecordSetGroup:
         Type: AWS::Route53::RecordSetGroup
         Properties:
-            # keep the . suffix
+            # Keep the . suffix
             HostedZoneName: !Sub "${DomainName}."
             RecordSets:
                 - Name: !Ref DomainName
                   Type: A
                   AliasTarget:
                       DNSName: !GetAtt CloudFrontDistribution.DomainName
+                      # Set EvaluateTargetHealth to false to avoid health check issues
                       EvaluateTargetHealth: false
-                      HostedZoneId: Z2FDTNDATAQYW2 # leave hardcoded, don't confuse w/ !Ref HostedZoneId
+                      # Leave hardcoded, don't confuse w/ !Ref HostedZoneId
+                      HostedZoneId: Z2FDTNDATAQYW2 
                 - Name: !Sub "www.${DomainName}"
                   Type: A
                   AliasTarget:
                       DNSName: !GetAtt CloudFrontDistribution.DomainName
                       EvaluateTargetHealth: false
-                      HostedZoneId: Z2FDTNDATAQYW2 # leave hardcoded, don't confuse w/ !Ref HostedZoneId
-
-Outputs:
-    WebsiteURL:
-        Value: !GetAtt S3Bucket.WebsiteURL
-        Description: URL for website hosted on S3
-    CloudfrontDomainName:
-        Value: !GetAtt CloudFrontDistribution.DomainName
-
-
-#Origin comments for OAC
-#!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
-#DomainName: !GetAtt S3Bucket.RegionalDomainName
-
-# If I want to have OAC need to add to Origin 
-                    #   S3OriginConfig:
-                    #     OriginAccessIdentity: ''
-                    #   OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
-# and additional resource 
-    # CloudFrontOriginAccessControl:
-    #     Type: AWS::CloudFront::OriginAccessControl
-    #     Properties: 
-    #         OriginAccessControlConfig:
-    #             Description: Default Origin Access Control
-    #             Name: !Ref DomainName
-    #             SigningBehavior: always
-    #             SigningProtocol: sigv4
-    #             OriginAccessControlOriginType: s3
-
-# Also delete Web part in S3 bucket creation
+                      HostedZoneId: Z2FDTNDATAQYW2
