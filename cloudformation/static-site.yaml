@@ -88,7 +88,7 @@ Resources:
                     MinTTL: 0
                     SmoothStreaming: false
                     TargetOriginId: !Sub "${DomainName}"
-                    ViewerProtocolPolicy: redirect-to-https
+                    ViewerProtocolPolicy: "redirect-to-https"
                     FunctionAssociations:
                         - EventType: viewer-request
                           FunctionARN: !GetAtt RedirectFunction.FunctionMetadata.FunctionARN
@@ -102,7 +102,7 @@ Resources:
                       CustomOriginConfig:
                         HTTPPort: 80
                         HTTPSPort: 443
-                        OriginProtocolPolicy: https-only
+                        OriginProtocolPolicy: "https-only"
                         OriginSSLProtocols: TLSv1.2
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
