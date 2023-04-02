@@ -24,6 +24,15 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
+            WebsiteConfiguration:
+                IndexDocument: index.html
+                ErrorDocument: 404.html
+                RoutingRules:
+                    - RoutingRuleCondition:
+                          HttpErrorCodeReturnedEquals: "404"
+                      RedirectRule:
+                          HostName: !Ref DomainName
+                          ReplaceKeyPrefixWith: "#!/404/"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -32,7 +41,7 @@ Resources:
             PolicyDocument:
                 Version: "2012-10-17"
                 Statement:
-                    - Sid: "Grant CloudFront Origin Access Control access to S3 bucket"
+                    - Sid: "Grant CloudFront Origin Access Identity access to S3 bucket"
                       Effect: "Allow"
                       Action: "s3:GetObject"
                       Resource: !Sub ${S3Bucket.Arn}/*
@@ -48,17 +57,7 @@ Resources:
                       Condition:
                         Bool:
                             "aws:SecureTransport": false
-    
-    CloudFrontOriginAccessControl:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties: 
-        OriginAccessControlConfig:
-            Description: Default Origin Access Control
-            Name: !Ref DomainName
-            SigningBehavior: always
-            SigningProtocol: sigv4
-            OriginAccessControlOriginType: s3
-    
+
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
         DependsOn: S3Bucket
@@ -98,11 +97,14 @@ Resources:
                 HttpVersion: http2
                 IPV6Enabled: true
                 Origins:
-                    - DomainName: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
+                    - DomainName: !Sub "${DomainName}.s3-website.${AWS::Region}.amazonaws.com"
                       Id: !Sub "${DomainName}"
-                      S3OriginConfig:
-                        OriginAccessIdentity: ''
-                      OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+                      CustomOriginConfig:
+                        HTTPPort: 80
+                        HTTPSPort: 443
+                        OriginProtocolPolicy: https-only
+                        OriginSSLProtocols: 
+                          - TLSv1.2
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
