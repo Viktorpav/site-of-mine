@@ -88,7 +88,7 @@ Resources:
                     MinTTL: 0
                     SmoothStreaming: false
                     TargetOriginId: !Sub "${DomainName}"
-                    ViewerProtocolPolicy: "redirect-to-https"
+                    ViewerProtocolPolicy: redirect-to-https
                     FunctionAssociations:
                         - EventType: viewer-request
                           FunctionARN: !GetAtt RedirectFunction.FunctionMetadata.FunctionARN
@@ -102,7 +102,8 @@ Resources:
                       CustomOriginConfig:
                         HTTPPort: 80
                         HTTPSPort: 443
-                        OriginProtocolPolicy: "https-only"
+                        OriginProtocolPolicy: https-only
+                        OriginSSLProtocols: TLSv1.2
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
                 ViewerCertificate:
@@ -166,7 +167,6 @@ Outputs:
 #Origin comments for OAC
 #!!! for buckets created in US East (N. Virginia) region without <<Regional>> "S3Bucket.DomainName"
 #DomainName: !GetAtt S3Bucket.RegionalDomainName
-#DomainName: !GetAtt S3Bucket.WebsiteURL
 
 # If I want to have OAC need to add to Origin 
                     #   S3OriginConfig:
@@ -183,9 +183,4 @@ Outputs:
     #             SigningProtocol: sigv4
     #             OriginAccessControlOriginType: s3
 
-#Origin comments S3 website endpoint
-                    # - CustomOriginConfig:
-                    #     HTTPPort: 80
-                    #     HTTPSPort: 443
-                    #     # keep http-only to avoid 504 errors after stack creation
-                    #     OriginProtocolPolicy: "https-only"
+# Also delete Web part in S3 bucket creation
