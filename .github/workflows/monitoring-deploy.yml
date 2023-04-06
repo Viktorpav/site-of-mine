@@ -25,5 +25,5 @@ jobs:
         template: cloudformation/monitoring.yaml
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
-          Prefix=pavlyshyn-space
+          Prefix=pavlyshyn-space,
           Email=doncar2003@gmail.com
