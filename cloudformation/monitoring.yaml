@@ -26,14 +26,6 @@ Resources:
           Unit: USD
         CostFilters:
           Service: [S3, CloudFront]
-      Notification:
-        NotificationType: ACTUAL
-        ComparisonOperator: GREATER_THAN_EQUAL_TO
-        Threshold: 100
-        ThresholdType: ABSOLUTE_VALUE
-        NotificationState: ALARM
-        NotificationProperties:
-          SnsTopicArn: !Ref SNSTopic
 
   Alarm:
     Type: AWS::CloudWatch::Alarm
@@ -50,8 +42,16 @@ Resources:
       AlarmAction:
         - !Ref SNSTopic
       AlarmActionsEnabled: true
-      AlarmConfigurationUpdatedTimestamp: !Sub "${AWS::StackName}-${Alarm}"
+      AlarmConfigurationUpdatedTimestamp: !Sub "${AWS::StackName}-${AWS::Timestamp}"
       Dimensions:
         ServiceName: s3
       AlarmDisplayName: "EstimatedCharges"
       AlarmType: STATIC
+      Notification:
+        NotificationType: ACTUAL
+        ComparisonOperator: GREATER_THAN_EQUAL_TO
+        Threshold: 100
+        ThresholdType: ABSOLUTE_VALUE
+        NotificationState: ALARM
+        NotificationProperties:
+          SnsTopicArn: !Ref SNSTopic
