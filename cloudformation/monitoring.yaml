@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Monitoring of the static site
 
 Parameters:
-  DomainName:
+  Prefix:
     Description: Domain name
     Type: String
 
@@ -11,14 +11,14 @@ Resources:
     Type: AWS::SNS::Topic
     Description: "Topic for sending budget alarm notifications"
     Properties:
-      DisplayName: !Sub "${DomainName}-topic"
-      TopicName: !Sub "${DomainName}-topic"
+      DisplayName: !Sub "${Prefix}-topic"
+      TopicName: !Sub "${Prefix}-topic"
 
   Budget: 
     Type: AWS::Budgets::Budget
     Properties:
       Budget:
-        BudgetName: !Sub "${DomainName}-budget"
+        BudgetName: !Sub "${Prefix}-budget"
         BudgetType: COST
         TimeUnit: MONTHLY
         BudgetLimit:
@@ -31,7 +31,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     DependsOn: Budget
     Properties:
-      AlarmName: !Sub "${DomainName}-cost-alarm"
+      AlarmName: !Sub "${Prefix}-cost-alarm"
       AlarmDescription: "Alarm when cost exceeds $1 for S3 and CloudFront services"
       MetricName: EstimatedCharges
       Namespace: AWS/Billing
