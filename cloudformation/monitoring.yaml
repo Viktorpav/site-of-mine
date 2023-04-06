@@ -3,9 +3,10 @@ Description: Monitoring of the static site
 
 Parameters:
   Prefix:
-    Description: Domain name
+    Description: Prefix for the general name
     Type: String
 
+# Create an SNS topic for sending budget alarm notifications
 Resources:
   SNSTopic:
     Type: AWS::SNS::Topic
@@ -14,6 +15,7 @@ Resources:
       DisplayName: !Sub "${Prefix}-topic"
       TopicName: !Sub "${Prefix}-topic"
 
+# Create a budget for monitoring S3 and CloudFront costs
   Budget: 
     Type: AWS::Budgets::Budget
     Properties:
@@ -26,10 +28,10 @@ Resources:
           Unit: USD
         CostFilters:
           Service: [S3, CloudFront]
-
+          
+# Create a CloudWatch Alarm for monitoring S3 costs
   Alarm:
     Type: AWS::CloudWatch::Alarm
-    DependsOn: Budget
     Properties:
       AlarmName: !Sub "${Prefix}-cost-alarm"
       AlarmDescription: "Alarm when cost exceeds $1 for S3 and CloudFront services"
@@ -45,7 +47,6 @@ Resources:
       Dimensions:
         ServiceName: s3
       AlarmDisplayName: "EstimatedCharges"
-      AlarmType: STATIC
       Notification:
         NotificationType: ACTUAL
         ComparisonOperator: GREATER_THAN_EQUAL_TO
