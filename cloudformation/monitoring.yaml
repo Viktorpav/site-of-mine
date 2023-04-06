@@ -16,7 +16,6 @@ Resources:
 
   Budget: 
     Type: AWS::Budgets::Budget
-    DependsOn: SNSTopic
     Properties:
       Budget:
         BudgetName: !Sub "${DomainName}-budget"

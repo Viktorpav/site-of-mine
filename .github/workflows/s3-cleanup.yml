@@ -1,4 +1,4 @@
-name: S3 Syncing Workflow
+name: S3 CleaningUP
 on:
   # push:
   #   branches:
