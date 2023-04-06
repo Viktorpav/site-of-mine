@@ -41,8 +41,8 @@ Resources:
         - Notification:
             NotificationType: ACTUAL
             ComparisonOperator: GREATER_THAN
-            # The notification is configured to trigger when the estimated charges exceed $1
-            Threshold: 1
+            # The notification is configured to trigger when the estimated charges exceed $0.80
+            Threshold: 80
           Subscribers:
             - SubscriptionType: EMAIL
               Address: !Ref Email
