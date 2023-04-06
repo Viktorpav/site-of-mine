@@ -5,6 +5,9 @@ Parameters:
   Prefix:
     Description: Prefix for the general name
     Type: String
+  Email:
+    Description: Email address to receive notifications
+    Type: String
 
 # Create an SNS topic for sending budget alarm notifications
 Resources:
@@ -14,6 +17,14 @@ Resources:
     Properties:
       DisplayName: !Sub "${Prefix}-topic"
       TopicName: !Sub "${Prefix}-topic"
+
+# Create subscribtion of email address to the SNS topic
+  EmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      TopicArn: !Ref SNSTopic
+      Endpoint: !Ref Email
 
 # Create a budget for monitoring S3 and CloudFront costs
   Budget: 
@@ -26,32 +37,17 @@ Resources:
         BudgetLimit:
           Amount: 1
           Unit: USD
-        CostFilters:
-          Service: [S3, CloudFront]
-          
-# Create a CloudWatch Alarm for monitoring S3 costs
-  Alarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub "${Prefix}-cost-alarm"
-      AlarmDescription: "Alarm when cost exceeds $1 for S3 and CloudFront services"
-      MetricName: EstimatedCharges
-      Namespace: AWS/Billing
-      Statistic: SAMPLE_COUNT
-      Period: 86400
-      EvaluationPeriods: 1
-      Threshold: 1
-      AlarmAction:
-        - !Ref SNSTopic
-      AlarmActionsEnabled: true
-      Dimensions:
-        ServiceName: s3
-      AlarmDisplayName: "EstimatedCharges"
-      Notification:
-        NotificationType: ACTUAL
-        ComparisonOperator: GREATER_THAN_EQUAL_TO
-        Threshold: 100
-        ThresholdType: ABSOLUTE_VALUE
-        NotificationState: ALARM
-        NotificationProperties:
-          SnsTopicArn: !Ref SNSTopic
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            # The notification is configured to trigger when the estimated charges exceed $1
+            Threshold: 1
+            ComparisonOperator: GREATER_THAN_EQUAL_TO
+            ThresholdType: ABSOLUTE_VALUE
+            NotificationState: ALARM
+            NotificationProperties:
+              Subject: "AWS Cost Notification"
+              Message: "The current cost has exceeded the threshold of $1"
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref Email
