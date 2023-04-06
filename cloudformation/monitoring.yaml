@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Monitoring of the static site
+
+Parameters:
+  DomainName:
+    Description: Domain name
+    Type: String
+
+Resources:
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Description: "Topic for sending budget alarm notifications"
+    Properties:
+      DisplayName: !Sub "${DomainName}-topic"
+      TopicName: !Sub "${DomainName}-topic"
+
+  Budget: 
+    Type: AWS::Budgets::Budget
+    DependsOn: SNSTopic
+    Properties:
+      Budget:
+        BudgetName: !Sub "${DomainName}-budget"
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: 1
+          Unit: USD
+        CostFilters:
+          Service: [S3, CloudFront]
+      Notification:
+        NotificationType: ACTUAL
+        ComparisonOperator: GREATER_THAN_EQUAL_TO
+        Threshold: 100
+        ThresholdType: ABSOLUTE_VALUE
+        NotificationState: ALARM
+        NotificationProperties:
+          SnsTopicArn: !Ref SNSTopic
+
+  Alarm:
+    Type: AWS::CloudWatch::Alarm
+    DependsOn: Budget
+    Properties:
+      AlarmName: !Sub "${DomainName}-cost-alarm"
+      AlarmDescription: "Alarm when cost exceeds $1 for S3 and CloudFront services"
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Statistic: SAMPLE_COUNT
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 1
+      AlarmAction:
+        - !Ref SNSTopic
+      AlarmActionsEnabled: true
+      AlarmConfigurationUpdatedTimestamp: !Ref "AWS::CloudWatch::Alarm::Timestamp"
+      Dimensions:
+        ServiceName: s3
+      AlarmDisplayName: "EstimatedCharges"
+      AlarmType: STATIC

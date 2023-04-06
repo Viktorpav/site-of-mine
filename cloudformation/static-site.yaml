@@ -145,14 +145,29 @@ Resources:
                   } catch (err) {
                     console.error(err);
 
-                    // If an error occurs, return a 500 Internal Server Error response with the error message in the response body
+                    // If an error occurs, return an appropriate error response
+                    var errorStatusCode;
+                    var errorStatusDescription;
+                    var errorBody;
+
+                    // Check the type of error and set appropriate error response values
+                    if (err instanceof Error) {
+                        errorStatusCode = 500;
+                        errorStatusDescription = "Internal Server Error";
+                        errorBody = "An error occurred: " + err.message;
+                    } else {
+                        errorStatusCode = 400;
+                        errorStatusDescription = "Bad Request";
+                        errorBody = "Bad Request: " + JSON.stringify(err);
+                    }
+
                     return {
-                        statusCode: 500,
-                        statusDescription: "Internal Server Error",
+                        statusCode: errorStatusCode,
+                        statusDescription: errorStatusDescription,
                         headers: {
                             "content-type": { value: "text/plain" },
                         },
-                        body: "An error occurred: " + err.message,
+                        body: "An error occurred: " + errorBody,
                     };
                   }
                 }
