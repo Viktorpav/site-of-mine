@@ -40,7 +40,7 @@ Resources:
       NotificationsWithSubscribers:
         - Notification:
             NotificationType: ACTUAL
-            ComparisonOperator: GREATER_THAN_EQUAL_TO
+            ComparisonOperator: GREATER_THAN
             # The notification is configured to trigger when the estimated charges exceed $1
             Threshold: 1
           Subscribers:
