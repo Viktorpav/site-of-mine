@@ -42,7 +42,6 @@ Resources:
       AlarmAction:
         - !Ref SNSTopic
       AlarmActionsEnabled: true
-      AlarmConfigurationUpdatedTimestamp: !Ref AWS::CloudWatch::Alarm::Timestamp
       Dimensions:
         ServiceName: s3
       AlarmDisplayName: "EstimatedCharges"
