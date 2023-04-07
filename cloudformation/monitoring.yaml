@@ -13,7 +13,6 @@ Parameters:
 Resources:
   SNSTopic:
     Type: AWS::SNS::Topic
-    Description: "Topic for sending budget alarm notifications"
     Properties:
       DisplayName: !Sub "${Prefix}-topic"
       TopicName: !Sub "${Prefix}-topic"
@@ -41,8 +40,29 @@ Resources:
         - Notification:
             NotificationType: ACTUAL
             ComparisonOperator: GREATER_THAN
-            # The notification is configured to trigger when the estimated charges exceed $0.80
+            # The notification is configured to trigger when the estimated charges exceed 80%
             Threshold: 80
           Subscribers:
             - SubscriptionType: EMAIL
               Address: !Ref Email
+
+# CloudWatch alarm will check the "Requests" metric of the CloudFront distribution every minute
+# and will send an alarm if the sum of requests in the last five minutes is greater than 100
+  CloudFrontRequestsAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${Prefix}-cloudfront-requests"
+      AlarmDescription: "Alarm for CloudFront requests"
+      MetricName: "Requests"
+      Namespace: "AWS/CloudFront"
+      Statistic: "Sum"
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: 100
+      ComparisonOperator: "GreaterThanThreshold"
+      Dimensions:
+        - Name: "CloudFrontDistributionId"
+          Value: !ImportValue CloudFrontDistributionId
+      AlarmActions:
+        - !Ref SNSTopic
+

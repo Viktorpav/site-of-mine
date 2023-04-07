@@ -59,6 +59,12 @@ cd site-of-mine
 - [x] To deploy CloudFormation stack 1.ACM and 2.Main stack 
 
 
+- [x]GitHub actions:
+    - to sync S3 bucket 
+    - to clean up S3 bucket
+    - monitoring cost deploy
+    - To deploy CloudFormation stack 1.ACM and 2.Main stack 
+
 - [x] Automate of fetching info:
     - HostedZoneId - in acm-certificate cli
 
@@ -72,7 +78,45 @@ cd site-of-mine
 
 - [x] Create dns record in Route53
 
+- [x] AWS Amplify Console for S3 static siteDocumentation - used for simple start and go solutions
 
 
+———————————————
+Go through ChatGTP recommendation:
 
-- [ ] AWS Amplify Console for S3 static siteDocumentation:
+Setup CloudFront Origin Access Control (OAC) - don’t work for website case
+The static website server provided by the S3 service for a bucket is http only, no support for https. Your custom origin config says https-only, so it won't be able to contact the origin.
+The best way to do this is disable the bucket's website and public access and instead of using a custom origin, use an S3 origin secured by an Origin Access Identity. That's a special CloudFront principal that you grant permissions to in your bucket policy.
+Then for best practice enable all the Block Public Access settings on the bucket. Bonus points for doing that at the account level too and never making any of your buckets public!
+
+
+- [x] Divide on 2 yaml, one with S3 website endpoint / S3 bucket endpoint(more secure)
+
+———————————————
+"""Add WAF, Shield and AWS FIrewall Manager to CloudFront | AWS WAF web ACL - optional
+Choose the web ACL in AWS WAF to associate with this distribution."""
+
+- [x] No need above due to the using S3 Origin type
+
+
+- [x] CloudFront shielding Origin in case no clearmonitor the app behind CF and see the advantage/disavantage, don't use it.
+
+———————————————
+- [x] Check in AWS Console every resource all functions:CloudFront(2 Origins access ?,) - should be 2
+- [x] Check S3 bucket section Default encryption - no need 
+
+- [x] Check error handling 403 - improved
+
+- [x] Check tool cfn-lint and AWS CloudFormation Linter - implied
+
+——————————————
+- [x] MAKE MONiTORiNG OF BiLLiNG - done general cost monitoring
+- [ ] MAKE MONiTORiNG of SERViCES (CLOD FRONT “redirect function and check all features etc)
+
+———————————————
+
+Improvement:
+- Use CloudFront Logs: Use the logging feature in CloudFront to monitor and analyze the performance of your delivered assets. You can use data analytics tools, like Amazon Athena or Amazon Redshift, to analyze logs and make smart business decisions.
+- Use Compression: Use compression in CloudFront Distribution to reduce file size and speed up page loading.
+ \\ Test with PageSpeed tool Compress property of the DefaultCacheBehavior object to true 
+

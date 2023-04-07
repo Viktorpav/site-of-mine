@@ -121,7 +121,7 @@ Resources:
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"
                 Runtime: cloudfront-js-1.0
-            FunctionCode: !Sub |
+            FunctionCode: |
                 function handler(event) {
                     var request = event.request;
                     var host = request.headers.host.value;
