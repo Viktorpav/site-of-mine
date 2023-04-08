@@ -140,13 +140,21 @@ Resources:
                     // Extract the host header from the request object
                     var host = request.headers.host.value;
 
+                    // Extract the path from the request object
+                    var path = request.uri;
+                    
+                    // If the path is "/video/video.mp4", return the request without any modifications
+                    if (path === "/video/video.mp4") {
+                        return request;
+                    }
+
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
                         return {
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
-                                location: { value: "https://www." + host },
+                                location: { value: "https://www." + host + path },
                             },
                         };
                     }
