@@ -111,12 +111,20 @@ Choose the web ACL in AWS WAF to associate with this distribution."""
 
 ——————————————
 - [x] MAKE MONiTORiNG OF BiLLiNG - done general cost monitoring
-- [ ] MAKE MONiTORiNG of SERViCES (CLOD FRONT “redirect function and check all features etc)
+- [x] MAKE MONiTORiNG of SERViCES (CLOD FRONT “redirect function and check all features etc) - implemented monitoring for client interaction
 
 ———————————————
+- [ ] Add video (video striming)
+    - Take care of CloudFront for media
+    - In General make a resourch how to better store and stream video to users
 
+
+
+
+———————————————
 Improvement:
 - Use CloudFront Logs: Use the logging feature in CloudFront to monitor and analyze the performance of your delivered assets. You can use data analytics tools, like Amazon Athena or Amazon Redshift, to analyze logs and make smart business decisions.
+
 - Use Compression: Use compression in CloudFront Distribution to reduce file size and speed up page loading.
  \\ Test with PageSpeed tool Compress property of the DefaultCacheBehavior object to true 
 
