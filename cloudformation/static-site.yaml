@@ -41,15 +41,15 @@ Resources:
                       Condition:
                         StringEquals:
                             AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
-                    - Sid: "Add MP4 MIME type"
-                      Effect: "Allow"
-                      Action: "s3:GetObject"
-                      Resource: !Sub "${S3Bucket.Arn}/video/*"
-                      Principal:
-                        AWS: "*"
-                      Condition:
-                        StringEquals:
-                            "s3:ExistingObjectContentType": "video/mp4"
+                    # - Sid: "Add MP4 MIME type"
+                    #   Effect: "Allow"
+                    #   Action: "s3:GetObject"
+                    #   Resource: !Sub "${S3Bucket.Arn}/video/*"
+                    #   Principal:
+                    #     AWS: "*"
+                    #   Condition:
+                    #     StringEquals:
+                    #         "s3:ExistingObjectContentType": "video/mp4"
                     - Effect: Deny
                       Principal: "*"
                       Action: "s3:*"
