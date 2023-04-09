@@ -179,21 +179,21 @@ Resources:
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
                 
                 // Import only the S3 module from the aws-sdk package, which is the only one you're using in your function.
-                const { S3 } = require('aws-sdk');
+                var S3 = require('aws-sdk/clients/s3').S3;
 
-                async function handler(event) {
+                function handler(event) {
                   try {
-                    const s3 = new S3();
-                    const cache = {};
+                    var s3 = new S3();
+                    var cache = {};
 
                     // Extract the incoming request from the event object
-                    const request = event.request;
+                    var request = event.request;
                     
                     // Extract the host header from the request object
-                    const host = request.headers.host.value;
+                    var host = request.headers.host.value;
 
                     // Extract the path from the request object
-                    const path = request.uri;
+                    var path = request.uri;
                     
                     // Check if the requested object exists in S3
                     if (cache[path]) {
@@ -210,12 +210,19 @@ Resources:
                         }
                     } else {
                         try {
-                        const params = {
+                        var params = {
                             Bucket: process.env.DomainName,
                             Key: path.substring(1), // Remove the leading slash from the path
                         };
-                        await s3.headObject(params).promise();
-                        cache[path] = { exists: true };
+                        s3.headObject(params, function(err, data) {
+                            if (err) {
+                                cache[path] = { exists: false };
+                            } else {
+                                cache[path] = { exists: true };
+                            }
+                            // Invoke the callback with the response
+                            callback(null, request);
+                        });
                         } catch (err) {
                         cache[path] = { exists: false };
                         }
@@ -223,23 +230,24 @@ Resources:
 
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
-                        return {
+                        callback(null, {
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
                                 location: { value: "https://www." + host + path},
                             },
-                        };
+                        });
+                    } else {
+                        callback(null, request);
                     }
 
-                    return request;
                   } catch (err) {
                     console.error(err);
 
                     // If an error occurs, return an appropriate error response
-                    let errorStatusCode;
-                    let errorStatusDescription;
-                    let errorBody;
+                    var errorStatusCode;
+                    var errorStatusDescription;
+                    var errorBody;
 
                     // Check the type of error and set appropriate error response values
                     if (err instanceof Error) {
@@ -252,14 +260,14 @@ Resources:
                         errorBody = "Bad Request: " + JSON.stringify(err);
                     }
 
-                    return {
+                    callback(null, {
                         statusCode: errorStatusCode,
                         statusDescription: errorStatusDescription,
                         headers: {
                             "content-type": { value: "text/plain" },
                         },
                         body: "An error occurred: " + errorBody,
-                    };
+                    });
                   }
                 }
 

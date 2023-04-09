@@ -24,7 +24,7 @@ jobs:
 
     # Install needed package for CloudFront Redirect Function
     - name: Install AWS SDK
-      run: npm install aws-sdk
+      run: npm install @aws-sdk/client-s3
 
     # Set ENV var for CertificateManagerArn
     - name: Set tag var
