@@ -23,8 +23,13 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     # Install needed package for CloudFront Redirect Function
-    - name: Install AWS SDK
-      run: npm install @aws-sdk/client-s3
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.x'
+    
+    - name: Install AWS S3 SDK
+      run: npm install @aws-sdk/client-s3 # it could be added --no-save
 
     # Set ENV var for CertificateManagerArn
     - name: Set tag var
