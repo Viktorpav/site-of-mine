@@ -24,6 +24,9 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
+            LoggingConfiguration:
+                DestinationBucketName: !Ref AccessLogBucket
+                LogFilePrefix: origin/
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -58,7 +61,46 @@ Resources:
                         Bool:
                             "aws:SecureTransport": false
 
-    
+    AccessLogBucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
+        Properties:
+            AccessControl: LogDeliveryWrite
+            BucketEncryption:
+                ServerSideEncryptionConfiguration: 
+                - ServerSideEncryptionByDefault: 
+                    SSEAlgorithm: AES256
+            LifecycleConfiguration:
+                Rules:
+                  - Id: Retain2yrs
+                    Status: Enabled
+                    ExpirationInDays: 730
+                    Transitions:
+                      - StorageClass: STANDARD_IA
+                        TransitionInDays: 30
+            PublicAccessBlockConfiguration: 
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
+
+    AccessLogBucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket: !Ref AccessLogBucket
+            PolicyDocument:
+                Statement:
+                  - Effect: Deny
+                    Principal: '*'
+                    Action: 's3:*'
+                    Resource: 
+                      - !Sub ${AccessLogBucket.Arn}/*
+                      - !GetAtt AccessLogBucket.Arn
+                    Condition:
+                      Bool: 
+                        aws:SecureTransport: false
+
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
         Properties: 
@@ -119,6 +161,10 @@ Resources:
                     AcmCertificateArn: !Ref CertificateManagerArn
                     MinimumProtocolVersion: TLSv1.2_2021
                     SslSupportMethod: sni-only
+                Logging:
+                    Bucket: !GetAtt AccessLogBucket.DomainName
+                    IncludeCookies: false
+                    Prefix: cloudfront/
 
     RedirectFunction:
         Type: AWS::CloudFront::Function
