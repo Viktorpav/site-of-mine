@@ -1,7 +1,12 @@
 name: Deploy of S3 and CloudFront
-on: [workflow_dispatch]
-# Allows you to run this workflow manually from the Actions tab
-
+on:
+  push:
+    branches:
+    # Here we choose to deploy only when a push is detected on the main branch
+      - main
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 jobs:
   build:
   # To build the project, take a VM with latest Ubuntu OS for running the next steps
