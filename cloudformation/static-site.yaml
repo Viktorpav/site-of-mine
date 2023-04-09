@@ -243,9 +243,9 @@ Outputs:
       Name: "CloudFrontDistributionId"
 
   EnvironmentVariables:
-    Value:
-      Variables:
-        DomainName: !Ref DomainName
+    Value: !Sub |
+      {
+        "DomainName": "${DomainName}"
+      }
     Export:
       Name: "EnvironmentVariables"
-    Type: AWS::CloudFormation::Stack
