@@ -174,11 +174,7 @@ Resources:
             # add the config, even if optional, the stack creation will thrown InternalFailure error otherwise
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"
-                Runtime: cloudfront-js-1.0
-                Environment:
-                  Variables:
-                    NODE_OPTIONS: --max-old-space-size=128
-
+                Runtime: cloudfront-js-1.0      
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
                 
