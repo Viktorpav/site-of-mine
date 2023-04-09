@@ -12,7 +12,8 @@ Parameters:
 Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
-        DeletionPolicy: Delete
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
         Properties:
             BucketName: !Sub "${DomainName}"
             BucketEncryption:
