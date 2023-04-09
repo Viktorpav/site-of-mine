@@ -132,21 +132,46 @@ Resources:
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
 
-                function handler(event) {
-                  try {
+                const AWS = require('aws-sdk');
+
+                async function handler(event) {
+                    const s3 = new AWS.S3();
+                    const cache = {};
+
                     // Extract the incoming request from the event object
-                    var request = event.request;
+                    const request = event.request;
                     
                     // Extract the host header from the request object
-                    var host = request.headers.host.value;
+                    const host = request.headers.host.value;
 
                     // Extract the path from the request object
-                    var path = request.uri;
+                    const path = request.uri;
                     
-                    # // If the path is "/video/video.mp4", return the request without any modifications
-                    # if (path === "/video/video.mp4") {
-                    #     return request;
-                    # }
+                    // Check if the requested object exists in S3
+                    if (cache[path]) {
+                    if (!cache[path].exists) {
+                        // If the object does not exist, return a 404 Not Found error response
+                        return {
+                        statusCode: 404,
+                        statusDescription: 'Not Found',
+                        headers: {
+                            'content-type': { value: 'text/plain' },
+                        },
+                        body: 'The requested object was not found.',
+                        };
+                    }
+                    } else {
+                    try {
+                        const params = {
+                        Bucket: process.env.DomainName,
+                        Key: path.substring(1), // Remove the leading slash from the path
+                        };
+                        await s3.headObject(params).promise();
+                        cache[path] = { exists: true };
+                    } catch (err) {
+                        cache[path] = { exists: false };
+                    }
+                    }
 
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
@@ -154,7 +179,7 @@ Resources:
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
-                                location: { value: "https://www." + host + path },
+                                location: { value: "https://www." + host + path},
                             },
                         };
                     }
@@ -162,18 +187,6 @@ Resources:
                     return request;
                   } catch (err) {
                     console.error(err);
-
-                    // Check for a 404 error and return the custom error page with a 404 status code
-                    if (err.code === "NoSuchKey") {
-                        return {
-                            statusCode: 404,
-                            statusDescription: "Not Found",
-                            headers: {
-                            "content-type": { value: "text/html" },
-                            },
-                            body: "<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>The requested resource could not be found.</p></body></html>",
-                        };
-                    }
 
                     // If an error occurs, return an appropriate error response
                     var errorStatusCode;
@@ -228,3 +241,11 @@ Outputs:
     Value: !Ref CloudFrontDistribution
     Export:
       Name: "CloudFrontDistributionId"
+
+  EnvironmentVariables:
+    Value:
+      Variables:
+        DomainName: !Ref DomainName
+    Export:
+      Name: "EnvironmentVariables"
+    Type: AWS::CloudFormation::Stack
