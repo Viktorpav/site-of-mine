@@ -177,15 +177,9 @@ Resources:
                 Runtime: cloudfront-js-1.0      
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
-                
-                // Import only the S3 module from the aws-sdk package, which is the only one you're using in your function.
-                var S3 = require('aws-sdk/clients/s3').S3;
 
                 function handler(event) {
                   try {
-                    var s3 = new S3();
-                    var cache = {};
-
                     // Extract the incoming request from the event object
                     var request = event.request;
                     
@@ -194,53 +188,19 @@ Resources:
 
                     // Extract the path from the request object
                     var path = request.uri;
-                    
-                    // Check if the requested object exists in S3
-                    if (cache[path]) {
-                        if (!cache[path].exists) {
-                            // If the object does not exist, return a 404 Not Found error response
-                            return {
-                                statusCode: 404,
-                                statusDescription: 'Not Found',
-                                headers: {
-                                    'content-type': { value: 'text/plain' },
-                                },
-                                body: 'The requested object was not found.',
-                            };
-                        }
-                    } else {
-                        try {
-                        var params = {
-                            Bucket: process.env.DomainName,
-                            Key: path.substring(1), // Remove the leading slash from the path
-                        };
-                        s3.headObject(params, function(err, data) {
-                            if (err) {
-                                cache[path] = { exists: false };
-                            } else {
-                                cache[path] = { exists: true };
-                            }
-                            // Invoke the callback with the response
-                            callback(null, request);
-                        });
-                        } catch (err) {
-                        cache[path] = { exists: false };
-                        }
-                    }
 
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
-                        callback(null, {
+                        return {
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
-                                location: { value: "https://www." + host + path},
+                                location: { value: "https://www." + host + path },
                             },
-                        });
-                    } else {
-                        callback(null, request);
+                        };
                     }
 
+                    return request;
                   } catch (err) {
                     console.error(err);
 
@@ -260,14 +220,14 @@ Resources:
                         errorBody = "Bad Request: " + JSON.stringify(err);
                     }
 
-                    callback(null, {
+                    return {
                         statusCode: errorStatusCode,
                         statusDescription: errorStatusDescription,
                         headers: {
                             "content-type": { value: "text/plain" },
                         },
                         body: "An error occurred: " + errorBody,
-                    });
+                    };
                   }
                 }
 
