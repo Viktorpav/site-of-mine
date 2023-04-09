@@ -1,9 +1,9 @@
 name: S3 Syncing Workflow
 on:
-  push:
-    branches:
-    # Here we choose to deploy only when a push is detected on the main branch
-      - main
+  # push:
+  #   branches:
+  #   # Here we choose to deploy only when a push is detected on the main branch
+  #     - main
   
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

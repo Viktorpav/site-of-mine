@@ -22,6 +22,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    # Install needed package for CloudFront Redirect Function
+    - name: Install AWS SDK
+      run: npm install aws-sdk
+
     # Set ENV var for CertificateManagerArn
     - name: Set tag var
       id: vars

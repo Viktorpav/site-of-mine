@@ -175,14 +175,19 @@ Resources:
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"
                 Runtime: cloudfront-js-1.0
+                Environment:
+                  Variables:
+                    NODE_OPTIONS: --max-old-space-size=128
+
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
-
-                const AWS = require('aws-sdk');
+                
+                // Import only the S3 module from the aws-sdk package, which is the only one you're using in your function.
+                const { S3 } = require('aws-sdk');
 
                 async function handler(event) {
                   try {
-                    const s3 = new AWS.S3();
+                    const s3 = new S3();
                     const cache = {};
 
                     // Extract the incoming request from the event object
