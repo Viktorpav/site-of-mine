@@ -181,6 +181,7 @@ Resources:
                 const AWS = require('aws-sdk');
 
                 async function handler(event) {
+                  try {
                     const s3 = new AWS.S3();
                     const cache = {};
 
@@ -195,28 +196,28 @@ Resources:
                     
                     // Check if the requested object exists in S3
                     if (cache[path]) {
-                    if (!cache[path].exists) {
-                        // If the object does not exist, return a 404 Not Found error response
-                        return {
-                        statusCode: 404,
-                        statusDescription: 'Not Found',
-                        headers: {
-                            'content-type': { value: 'text/plain' },
-                        },
-                        body: 'The requested object was not found.',
-                        };
-                    }
+                        if (!cache[path].exists) {
+                            // If the object does not exist, return a 404 Not Found error response
+                            return {
+                                statusCode: 404,
+                                statusDescription: 'Not Found',
+                                headers: {
+                                    'content-type': { value: 'text/plain' },
+                                },
+                                body: 'The requested object was not found.',
+                            };
+                        }
                     } else {
-                    try {
+                        try {
                         const params = {
-                        Bucket: process.env.DomainName,
-                        Key: path.substring(1), // Remove the leading slash from the path
+                            Bucket: process.env.DomainName,
+                            Key: path.substring(1), // Remove the leading slash from the path
                         };
                         await s3.headObject(params).promise();
                         cache[path] = { exists: true };
-                    } catch (err) {
+                        } catch (err) {
                         cache[path] = { exists: false };
-                    }
+                        }
                     }
 
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
@@ -235,9 +236,9 @@ Resources:
                     console.error(err);
 
                     // If an error occurs, return an appropriate error response
-                    var errorStatusCode;
-                    var errorStatusDescription;
-                    var errorBody;
+                    let errorStatusCode;
+                    let errorStatusDescription;
+                    let errorBody;
 
                     // Check the type of error and set appropriate error response values
                     if (err instanceof Error) {
