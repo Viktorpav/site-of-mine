@@ -178,7 +178,7 @@ Resources:
                 Runtime: cloudfront-js-1.0      
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
-
+                
                 function handler(event) {
                   try {
                     // Extract the incoming request from the event object
@@ -186,17 +186,14 @@ Resources:
                     
                     // Extract the host header from the request object
                     var host = request.headers.host.value;
-
-                    // Extract the path from the request object
-                    var path = request.uri;
-
+                    
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
                         return {
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
-                                location: { value: "https://www." + host + path },
+                                location: { value: "https://www." + host },
                             },
                         };
                     }
@@ -220,7 +217,7 @@ Resources:
                         errorStatusDescription = "Bad Request";
                         errorBody = "Bad Request: " + JSON.stringify(err);
                     }
-
+                    
                     return {
                         statusCode: errorStatusCode,
                         statusDescription: errorStatusDescription,
@@ -258,11 +255,3 @@ Outputs:
     Value: !Ref CloudFrontDistribution
     Export:
       Name: "CloudFrontDistributionId"
-
-  EnvironmentVariables:
-    Value: !Sub |
-      {
-        "DomainName": "${DomainName}"
-      }
-    Export:
-      Name: "EnvironmentVariables"
