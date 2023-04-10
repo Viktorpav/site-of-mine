@@ -186,6 +186,9 @@ Resources:
                     
                     // Extract the host header from the request object
                     var host = request.headers.host.value;
+
+                    // Extract the path from the request object
+                    var path = request.uri;
                     
                     // If the host header doesn't start with "www.", redirect to the equivalent URL with "www."
                     if (!host.startsWith("www.")) {
@@ -193,7 +196,7 @@ Resources:
                             statusCode: 301,
                             statusDescription: "Permanently moved",
                             headers: {
-                                location: { value: "https://www." + host },
+                                location: { value: "https://www." + host + path },
                             },
                         };
                     }
@@ -217,7 +220,7 @@ Resources:
                         errorStatusDescription = "Bad Request";
                         errorBody = "Bad Request: " + JSON.stringify(err);
                     }
-                    
+
                     return {
                         statusCode: errorStatusCode,
                         statusDescription: errorStatusDescription,
