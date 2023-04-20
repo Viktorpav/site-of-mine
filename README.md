@@ -114,14 +114,32 @@ Choose the web ACL in AWS WAF to associate with this distribution."""
 - [x] MAKE MONiTORiNG of SERViCES (CLOD FRONT “redirect function and check all features etc) - implemented monitoring for client interaction
 
 ———————————————
-- [ ] Add video (video striming)
+- [x] Add video (video striming)
     - Take care of CloudFront for media
     - In General make a resourch how to better store and stream video to users
 
+——
+- [x] Improve Access Dined on the bucket to redirect to 404, 403 page
+- [x] Respond with 503 page when some maintaining
+Improve GitHub action to pull somehow video too(from local) - now I need to push it manually locally 
+Improve Video Transcoder  for videos in S3 bucket
 
+———————————————
+- [x] Add video (video streaming)
+    - Take care of CloudFront for media
+    - In General make a research how to better store and stream video to users
+
+————————
+If someone connect from Russia redirect them to Ukrainian Crypto Wallet organization(cloudfront function + aws doc)
+
+———————————————
+- [ ] Work on Github Action Warning
 
 
 ———————————————
+Improve caching of CloudFront distribution
+Add CloudFront logs bucket and function - under consideration	if it is useful 
+
 Improvement:
 - Use CloudFront Logs: Use the logging feature in CloudFront to monitor and analyze the performance of your delivered assets. You can use data analytics tools, like Amazon Athena or Amazon Redshift, to analyze logs and make smart business decisions.
 
