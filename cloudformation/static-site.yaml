@@ -81,7 +81,6 @@ Resources:
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
         Properties:
-            RoleName: !Sub "${DomainName}-transcode-function-role"
             AssumeRolePolicyDocument:
                 Version: "2012-10-17"
                 Statement:
@@ -91,8 +90,7 @@ Resources:
                       Action:
                         - sts:AssumeRole
             Policies:
-                - PolicyName: !Sub "${DomainName}-s3-read-write"
-                  PolicyDocument:
+                - PolicyDocument:
                     Version: "2012-10-17"
                     Statement:
                         - Effect: Allow
