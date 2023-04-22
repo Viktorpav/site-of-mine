@@ -90,7 +90,8 @@ Resources:
                       Action:
                         - sts:AssumeRole
             Policies:
-                - PolicyDocument:
+                - PolicyName: !Sub "${DomainName}-s3-read-write"
+                  PolicyDocument:
                     Version: "2012-10-17"
                     Statement:
                         - Effect: Allow
