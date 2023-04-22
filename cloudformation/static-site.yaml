@@ -74,9 +74,9 @@ Resources:
                     output_path = f's3://{bucket}/transcoded/{key}'
                     subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
 
-        Handler: index.lambda_handler
-        Runtime: python3.8
-        Role: !GetAtt TranscodeFunctionRole.Arn
+            Handler: index.lambda_handler
+            Runtime: python3.8
+            Role: !GetAtt TranscodeFunctionRole.Arn
 
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
