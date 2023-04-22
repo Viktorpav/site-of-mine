@@ -4,6 +4,8 @@ Description: Deploy a static site
 Parameters:
     DomainName:
         Type: String
+    Prefix:
+        Type: String
     CertificateManagerArn:
         Type: String
 
@@ -54,7 +56,7 @@ Resources:
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
-            FunctionName: !Sub "${DomainName}-transcode-function"
+            FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
               ZipFile: |
                 import boto3
@@ -90,7 +92,7 @@ Resources:
                       Action:
                         - sts:AssumeRole
             Policies:
-                - PolicyName: !Sub "${DomainName}-s3-read-write"
+                - PolicyName: !Sub "${Prefix}-s3-read-write"
                   PolicyDocument:
                     Version: "2012-10-17"
                     Statement:

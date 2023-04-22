@@ -36,6 +36,7 @@ jobs:
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
           DomainName=pavlyshyn.space,
+          Prefix=pavlyshyn-space,
           CertificateManagerArn=${{ env.CertificateManagerArn }}
         
 
