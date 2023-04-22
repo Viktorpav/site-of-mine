@@ -3,10 +3,8 @@ Description: Deploy a static site
 
 Parameters:
     DomainName:
-        Description: Domain name
         Type: String
     CertificateManagerArn:
-        Description: Certificate locater
         Type: String
 
 Resources:
@@ -25,9 +23,6 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
-            LoggingConfiguration:
-                DestinationBucketName: !Ref AccessLogBucket
-                LogFilePrefix: origin/
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -53,45 +48,65 @@ Resources:
                         Bool:
                             "aws:SecureTransport": false
 
-    AccessLogBucket:
-        Type: AWS::S3::Bucket
-        DeletionPolicy: Retain
-        UpdateReplacePolicy: Retain
-        Properties:
-            AccessControl: LogDeliveryWrite
-            BucketEncryption:
-                ServerSideEncryptionConfiguration: 
-                - ServerSideEncryptionByDefault: 
-                    SSEAlgorithm: AES256
-            LifecycleConfiguration:
-                Rules:
-                  - Id: Retain2yrs
-                    Status: Enabled
-                    ExpirationInDays: 730
-                    Transitions:
-                      - StorageClass: STANDARD_IA
-                        TransitionInDays: 30
-            PublicAccessBlockConfiguration: 
-                BlockPublicAcls: true
-                BlockPublicPolicy: true
-                IgnorePublicAcls: true
-                RestrictPublicBuckets: true
 
-    AccessLogBucketPolicy:
-        Type: AWS::S3::BucketPolicy
+
+
+    TranscodeFunction:
+        Type: AWS::Lambda::Function
         Properties:
-            Bucket: !Ref AccessLogBucket
-            PolicyDocument:
+            FunctionName: !Sub "${DomainName}-transcode-function"
+            Code:
+              ZipFile: |
+                import boto3
+                import subprocess
+
+                s3 = boto3.client('s3')
+
+                def lambda_handler(event, context):
+                    # Get the object from the event and show its content type
+                    bucket = event['Records'][0]['s3']['bucket']['name']
+                    key = event['Records'][0]['s3']['object']['key']
+                    response = s3.get_object(Bucket=bucket, Key=key)
+                    content_type = response['ContentType']
+
+                    # Use FFmpeg to transcode the video
+                    input_path = f's3://{bucket}/{key}'
+                    output_path = f's3://{bucket}/transcoded/{key}'
+                    subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
+
+        Handler: index.lambda_handler
+        Runtime: python3.8
+        Role: !GetAtt TranscodeFunctionRole.Arn
+
+    TranscodeFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: !Sub "${DomainName}-transcode-function-role"
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
                 Statement:
-                  - Effect: Deny
-                    Principal: '*'
-                    Action: 's3:*'
-                    Resource: 
-                      - !Sub ${AccessLogBucket.Arn}/*
-                      - !GetAtt AccessLogBucket.Arn
-                    Condition:
-                      Bool: 
-                        aws:SecureTransport: false
+                    - Effect: Allow
+                      Principal:
+                        Service: lambda.amazonaws.com
+                      Action:
+                        - sts:AssumeRole
+        Policies:
+            - PolicyName: !Sub "${DomainName}-s3-read-write"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - s3:GetObject
+                      - s3:PutObject
+                    Resource: !Sub ${S3Bucket.Arn}/*
+
+
+
+
+
+
+
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
@@ -161,17 +176,12 @@ Resources:
                     AcmCertificateArn: !Ref CertificateManagerArn
                     MinimumProtocolVersion: TLSv1.2_2021
                     SslSupportMethod: sni-only
-                Logging:
-                    Bucket: !GetAtt AccessLogBucket.DomainName
-                    IncludeCookies: false
-                    Prefix: cloudfront/
 
     RedirectFunction:
         Type: AWS::CloudFront::Function
         Properties:
             AutoPublish: true
             Name: !Sub "${AWS::StackName}-redirects"
-            # add the config, even if optional, the stack creation will thrown InternalFailure error otherwise
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"
                 Runtime: cloudfront-js-1.0      

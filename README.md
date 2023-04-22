@@ -130,10 +130,10 @@ Improve Video Transcoder  for videos in S3 bucket
     - In General make a research how to better store and stream video to users
 
 ————————
-If someone connect from Russia redirect them to Ukrainian Crypto Wallet organization(cloudfront function + aws doc)
+If someone connect from Russia redirect them to Ukrainian Crypto Wallet organization(cloudfront function + aws doc) - but redirect could cause google rate(better to not allow)
 
 ———————————————
-- [ ] Work on Github Action Warning
+- [x] Work on Github Action Warning
 
 
 ———————————————

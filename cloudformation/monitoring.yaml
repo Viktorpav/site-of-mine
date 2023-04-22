@@ -65,4 +65,3 @@ Resources:
           Value: !ImportValue CloudFrontDistributionId
       AlarmActions:
         - !Ref SNSTopic
-
