@@ -90,16 +90,16 @@ Resources:
                         Service: lambda.amazonaws.com
                       Action:
                         - sts:AssumeRole
-        Policies:
-            - PolicyName: !Sub "${DomainName}-s3-read-write"
-              PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                  - Effect: Allow
-                    Action:
-                      - s3:GetObject
-                      - s3:PutObject
-                    Resource: !Sub ${S3Bucket.Arn}/*
+            Policies:
+                - PolicyName: !Sub "${DomainName}-s3-read-write"
+                  PolicyDocument:
+                    Version: "2012-10-17"
+                    Statement:
+                        - Effect: Allow
+                          Action:
+                            - s3:GetObject
+                            - s3:PutObject
+                          Resource: !Sub ${S3Bucket.Arn}/*
 
 
 
