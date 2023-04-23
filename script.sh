@@ -35,7 +35,7 @@ CertificateManagerArn=$CertificateManagerArn
 wait
 
 # Copy static site to S3 bucket
-aws s3 sync . s3://$1 --acl public-read --exclude "*" --include index.html --include 404.html
+aws s3 sync . s3://$1 --acl public-read --exclude "*" --include index.html --include 404.html --include 503.html --include "video/*"
 
 # Clear CloudFront cache
 DistributionId=$(aws cloudfront list-distributions --region us-east-1 --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='$1'].id" --output text)

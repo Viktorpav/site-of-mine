@@ -25,6 +25,10 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
+            NotificationConfiguration:
+                LambdaConfigurations:
+                    - Event: 's3:ObjectCreated:*'
+                      Function: !GetAtt TranscodeFunction.Arn
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy

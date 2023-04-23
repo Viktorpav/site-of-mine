@@ -38,6 +38,3 @@ jobs:
           DomainName=pavlyshyn.space,
           Prefix=pavlyshyn-space,
           CertificateManagerArn=${{ env.CertificateManagerArn }}
-        
-
-
