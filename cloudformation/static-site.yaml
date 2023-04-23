@@ -82,8 +82,8 @@ Resources:
             Handler: index.lambda_handler
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
-            DependsOn:
-                - TranscodeFunctionRole
+        DependsOn:
+             - TranscodeFunctionRole
 
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
