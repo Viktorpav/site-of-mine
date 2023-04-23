@@ -12,8 +12,6 @@ Parameters:
 Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
-        DependsOn:
-            - TranscodeFunction
         DeletionPolicy: Retain
         UpdateReplacePolicy: Retain
         Properties:
