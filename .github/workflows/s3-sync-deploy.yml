@@ -44,5 +44,5 @@ jobs:
 
     - name: Deploy content to S3 bucket
       run: |
-        aws s3 sync ./video s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html --include 503.html --recursive
+        aws s3 sync ./video s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html --include 503.html
         aws cloudfront create-invalidation --distribution-id $DistributionId --paths '/*'
