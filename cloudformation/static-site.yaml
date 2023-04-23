@@ -12,6 +12,8 @@ Parameters:
 Resources:
     S3Bucket:
         Type: AWS::S3::Bucket
+        DependsOn:
+            - TranscodeFunction
         DeletionPolicy: Retain
         UpdateReplacePolicy: Retain
         Properties:
@@ -54,9 +56,6 @@ Resources:
                         Bool:
                             "aws:SecureTransport": false
 
-
-
-
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
@@ -83,6 +82,8 @@ Resources:
             Handler: index.lambda_handler
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
+            DependsOn:
+                - TranscodeFunctionRole
 
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
@@ -95,23 +96,8 @@ Resources:
                         Service: lambda.amazonaws.com
                       Action:
                         - sts:AssumeRole
-            Policies:
-                - PolicyName: !Sub "${Prefix}-s3-read-write"
-                  PolicyDocument:
-                    Version: "2012-10-17"
-                    Statement:
-                        - Effect: Allow
-                          Action:
-                            - s3:GetObject
-                            - s3:PutObject
-                          Resource: !Sub ${S3Bucket.Arn}/*
-
-
-
-
-
-
-
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
