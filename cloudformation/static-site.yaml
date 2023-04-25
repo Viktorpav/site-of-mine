@@ -37,6 +37,14 @@ Resources:
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            SourceArn: !Sub ${S3Bucket.Arn}
+            SourceAccount: !Ref AWS::AccountId
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
@@ -84,15 +92,13 @@ Resources:
                 LambdaConfigurations:
                     - Event: 's3:ObjectCreated:*'
                       Function: !GetAtt TranscodeFunction.Arn
-
-    S3InvokeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:InvokeFunction
-            FunctionName: !Ref TranscodeFunction
-            Principal: s3.amazonaws.com
-            SourceArn: !Sub arn:aws:s3:::${S3Bucket}
-
+                      Filter:
+                        S3Key:
+                            Rules:
+                                - Name: Suffix
+                                  Value: ".mp4"
+                                - Name: Prefix
+                                  Value: "test-"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
