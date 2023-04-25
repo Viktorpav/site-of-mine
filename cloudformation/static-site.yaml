@@ -44,7 +44,7 @@ Resources:
             FunctionName: !Ref TranscodeFunction
             Principal: s3.amazonaws.com
             SourceArn: !Sub ${S3Bucket.Arn}
-            SourceAccount: !Ref AWS::AccountId
+            # SourceAccount: !Ref AWS::AccountId
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
@@ -92,13 +92,13 @@ Resources:
                 LambdaConfigurations:
                     - Event: 's3:ObjectCreated:*'
                       Function: !GetAtt TranscodeFunction.Arn
-                      Filter:
-                        S3Key:
-                            Rules:
-                                - Name: Suffix
-                                  Value: ".mp4"
-                                - Name: Prefix
-                                  Value: "test-"
+                    #   Filter:
+                    #     S3Key:
+                    #         Rules:
+                    #             - Name: Suffix
+                    #               Value: ".mp4"
+                    #             - Name: Prefix
+                    #               Value: "test-"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
