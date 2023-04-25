@@ -44,7 +44,7 @@ Resources:
             FunctionName: !Ref TranscodeFunction
             Principal: s3.amazonaws.com
             SourceArn: !Sub ${S3Bucket.Arn}
-            # SourceAccount: !Ref AWS::AccountId
+            SourceAccount: !Ref AWS::AccountId
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
