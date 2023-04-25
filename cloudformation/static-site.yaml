@@ -23,6 +23,21 @@ Resources:
         #             Value: .txt
         #     Function: !GetAtt Lambda.Arn
 
+    TranscodeFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                        Service: lambda.amazonaws.com
+                      Action:
+                        - sts:AssumeRole
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
@@ -50,28 +65,6 @@ Resources:
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
 
-    S3InvokeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:InvokeFunction
-            FunctionName: !Ref TranscodeFunction
-            Principal: s3.amazonaws.com
-            SourceArn: !Sub ${S3Bucket.Arn}
-
-    TranscodeFunctionRole:
-        Type: AWS::IAM::Role
-        Properties:
-            AssumeRolePolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                    - Effect: Allow
-                      Principal:
-                        Service: lambda.amazonaws.com
-                      Action:
-                        - sts:AssumeRole
-            ManagedPolicyArns:
-                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-
     S3Bucket:
         Type: AWS::S3::Bucket
         DeletionPolicy: Retain
@@ -91,6 +84,14 @@ Resources:
                 LambdaConfigurations:
                     - Event: 's3:ObjectCreated:*'
                       Function: !GetAtt TranscodeFunction.Arn
+
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            SourceArn: !Sub ${S3Bucket.Arn}
 
 
     S3BucketPolicy:
