@@ -10,25 +10,7 @@ Parameters:
         Type: String
 
 Resources:
-    S3Bucket:
-        Type: AWS::S3::Bucket
-        DeletionPolicy: Retain
-        UpdateReplacePolicy: Retain
-        Properties:
-            BucketName: !Sub "${DomainName}"
-            BucketEncryption:
-                ServerSideEncryptionConfiguration: 
-                - ServerSideEncryptionByDefault: 
-                    SSEAlgorithm: AES256
-            PublicAccessBlockConfiguration: 
-                BlockPublicAcls: true
-                BlockPublicPolicy: true
-                IgnorePublicAcls: true
-                RestrictPublicBuckets: true
-            NotificationConfiguration:
-                LambdaConfigurations:
-                    - Event: 's3:ObjectCreated:*'
-                      Function: !GetAtt TranscodeFunction.Arn
+
 
         # LambdaConfigurations:
         #   - Event: 's3:ObjectCreated:*'
@@ -89,6 +71,27 @@ Resources:
                         - sts:AssumeRole
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+    S3Bucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
+        Properties:
+            BucketName: !Sub "${DomainName}"
+            BucketEncryption:
+                ServerSideEncryptionConfiguration: 
+                - ServerSideEncryptionByDefault: 
+                    SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration: 
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
+            NotificationConfiguration:
+                LambdaConfigurations:
+                    - Event: 's3:ObjectCreated:*'
+                      Function: !GetAtt TranscodeFunction.Arn
+
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
