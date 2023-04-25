@@ -91,7 +91,7 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref TranscodeFunction
             Principal: s3.amazonaws.com
-            SourceArn: !Sub ${S3Bucket.Arn}
+            SourceArn: !Sub arn:aws:s3:::${S3Bucket}
 
 
     S3BucketPolicy:
