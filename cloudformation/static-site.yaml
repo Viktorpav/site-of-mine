@@ -30,29 +30,16 @@ Resources:
                     - Event: 's3:ObjectCreated:*'
                       Function: !GetAtt TranscodeFunction.Arn
 
-    S3BucketPolicy:
-        Type: AWS::S3::BucketPolicy
-        Properties:
-            Bucket: !Ref S3Bucket
-            PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                    - Sid: "Grant CloudFront Origin Access Control access to S3 bucket"
-                      Effect: "Allow"
-                      Action: "s3:GetObject"
-                      Resource: !Sub ${S3Bucket.Arn}/*
-                      Principal:
-                        Service: cloudfront.amazonaws.com
-                      Condition:
-                        StringEquals:
-                            AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
-                    - Effect: Deny
-                      Principal: "*"
-                      Action: "s3:*"
-                      Resource: !Sub ${S3Bucket.Arn}/*
-                      Condition:
-                        Bool:
-                            "aws:SecureTransport": false
+        # LambdaConfigurations:
+        #   - Event: 's3:ObjectCreated:*'
+        #     Filter:
+        #       S3Key:
+        #         Rules:
+        #           - Name: prefix
+        #             Value: test/
+        #           - Name: suffix
+        #             Value: .txt
+        #     Function: !GetAtt Lambda.Arn
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
@@ -80,8 +67,14 @@ Resources:
             Handler: index.lambda_handler
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
-        DependsOn:
-             - TranscodeFunctionRole
+
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            SourceArn: !Sub ${S3Bucket.Arn}
 
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
@@ -96,6 +89,30 @@ Resources:
                         - sts:AssumeRole
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+    S3BucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket: !Ref S3Bucket
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Sid: "Grant CloudFront Origin Access Control access to S3 bucket"
+                      Effect: "Allow"
+                      Action: "s3:GetObject"
+                      Resource: !Sub ${S3Bucket.Arn}/*
+                      Principal:
+                        Service: cloudfront.amazonaws.com
+                      Condition:
+                        StringEquals:
+                            AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+                    - Effect: Deny
+                      Principal: "*"
+                      Action: "s3:*"
+                      Resource: !Sub ${S3Bucket.Arn}/*
+                      Condition:
+                        Bool:
+                            "aws:SecureTransport": false
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
