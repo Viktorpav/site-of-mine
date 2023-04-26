@@ -34,33 +34,6 @@ Resources:
                                 - "s3:PutObject"
                             Resource: !Sub ${S3Bucket.Arn}/*
 
-    TranscodeFunction:
-        Type: AWS::Lambda::Function
-        Properties:
-            FunctionName: !Sub "${Prefix}-transcode-function"
-            Code:
-                ZipFile: |
-                    import boto3
-                    import subprocess
-
-                    s3 = boto3.client('s3')
-
-                    def lambda_handler(event, context):
-                        # Get the object from the event and show its content type
-                        bucket = event['Records'][0]['s3']['bucket']['name']
-                        key = event['Records'][0]['s3']['object']['key']
-                        response = s3.get_object(Bucket=bucket, Key=key)
-                        content_type = response['ContentType']
-
-                        # Use FFmpeg to transcode the video
-                        input_path = f's3://{bucket}/{key}'
-                        output_path = f's3://{bucket}/transcoded/{key}'
-                        subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
-
-            Handler: index.lambda_handler
-            Runtime: python3.8
-            Role: !GetAtt TranscodeFunctionRole.Arn
-
     S3Bucket:
         Type: AWS::S3::Bucket
         DeletionPolicy: Retain
@@ -87,6 +60,33 @@ Resources:
                     #               Value: ".mp4"
                     #             - Name: Prefix
                     #               Value: "test-"
+
+    TranscodeFunction:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: !Sub "${Prefix}-transcode-function"
+            Code:
+                ZipFile: |
+                    import boto3
+                    import subprocess
+
+                    s3 = boto3.client('s3')
+
+                    def lambda_handler(event, context):
+                        # Get the object from the event and show its content type
+                        bucket = event['Records'][0]['s3']['bucket']['name']
+                        key = event['Records'][0]['s3']['object']['key']
+                        response = s3.get_object(Bucket=bucket, Key=key)
+                        content_type = response['ContentType']
+
+                        # Use FFmpeg to transcode the video
+                        input_path = f's3://{bucket}/{key}'
+                        output_path = f's3://{bucket}/transcoded/{key}'
+                        subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
+
+            Handler: index.lambda_handler
+            Runtime: python3.8
+            Role: !GetAtt TranscodeFunctionRole.Arn
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
