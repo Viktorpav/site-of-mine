@@ -10,6 +10,33 @@ Parameters:
         Type: String
 
 Resources:
+    S3Bucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
+        Properties:
+            BucketName: !Sub "${DomainName}"
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                    - ServerSideEncryptionByDefault:
+                          SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
+            NotificationConfiguration:
+                LambdaConfigurations:
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !GetAtt TranscodeFunction.Arn
+                    #   Filter:
+                    #     S3Key:
+                    #         Rules:
+                    #             - Name: Suffix
+                    #               Value: ".mp4"
+                    #             - Name: Prefix
+                    #               Value: "test-"
+
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
         Properties:
@@ -18,21 +45,21 @@ Resources:
                 Statement:
                     - Effect: Allow
                       Principal:
-                        Service: lambda.amazonaws.com
+                          Service: lambda.amazonaws.com
                       Action:
-                        - sts:AssumeRole
+                          - sts:AssumeRole
             ManagedPolicyArns:
                 - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
             Policies:
                 - PolicyName: S3PermissionsLambda
                   PolicyDocument:
-                    Version: "2012-10-17"
-                    Statement:
-                      - Effect: Allow
-                        Action:
-                            - "s3:GetObject"
-                            - "s3:PutObject"
-                        Resource: !Sub ${S3Bucket.Arn}/*
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - "s3:GetObject"
+                                - "s3:PutObject"
+                            Resource: !Sub ${S3Bucket.Arn}/*
 
     S3InvokeLambdaPermission:
         Type: AWS::Lambda::Permission
@@ -48,54 +75,27 @@ Resources:
         Properties:
             FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
-              ZipFile: |
-                import boto3
-                import subprocess
+                ZipFile: |
+                    import boto3
+                    import subprocess
 
-                s3 = boto3.client('s3')
+                    s3 = boto3.client('s3')
 
-                def lambda_handler(event, context):
-                    # Get the object from the event and show its content type
-                    bucket = event['Records'][0]['s3']['bucket']['name']
-                    key = event['Records'][0]['s3']['object']['key']
-                    response = s3.get_object(Bucket=bucket, Key=key)
-                    content_type = response['ContentType']
+                    def lambda_handler(event, context):
+                        # Get the object from the event and show its content type
+                        bucket = event['Records'][0]['s3']['bucket']['name']
+                        key = event['Records'][0]['s3']['object']['key']
+                        response = s3.get_object(Bucket=bucket, Key=key)
+                        content_type = response['ContentType']
 
-                    # Use FFmpeg to transcode the video
-                    input_path = f's3://{bucket}/{key}'
-                    output_path = f's3://{bucket}/transcoded/{key}'
-                    subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
+                        # Use FFmpeg to transcode the video
+                        input_path = f's3://{bucket}/{key}'
+                        output_path = f's3://{bucket}/transcoded/{key}'
+                        subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
 
             Handler: index.lambda_handler
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
-
-    S3Bucket:
-        Type: AWS::S3::Bucket
-        DeletionPolicy: Retain
-        UpdateReplacePolicy: Retain
-        Properties:
-            BucketName: !Sub "${DomainName}"
-            BucketEncryption:
-                ServerSideEncryptionConfiguration: 
-                - ServerSideEncryptionByDefault: 
-                    SSEAlgorithm: AES256
-            PublicAccessBlockConfiguration: 
-                BlockPublicAcls: true
-                BlockPublicPolicy: true
-                IgnorePublicAcls: true
-                RestrictPublicBuckets: true
-            NotificationConfiguration:
-                LambdaConfigurations:
-                    - Event: 's3:ObjectCreated:*'
-                      Function: !GetAtt TranscodeFunction.Arn
-                    #   Filter:
-                    #     S3Key:
-                    #         Rules:
-                    #             - Name: Suffix
-                    #               Value: ".mp4"
-                    #             - Name: Prefix
-                    #               Value: "test-"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -109,28 +109,28 @@ Resources:
                       Action: "s3:GetObject"
                       Resource: !Sub ${S3Bucket.Arn}/*
                       Principal:
-                        Service: cloudfront.amazonaws.com
+                          Service: cloudfront.amazonaws.com
                       Condition:
-                        StringEquals:
-                            AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+                          StringEquals:
+                              AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
                     - Effect: Deny
                       Principal: "*"
                       Action: "s3:*"
                       Resource: !Sub ${S3Bucket.Arn}/*
                       Condition:
-                        Bool:
-                            "aws:SecureTransport": false
+                          Bool:
+                              "aws:SecureTransport": false
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
-        Properties: 
+        Properties:
             OriginAccessControlConfig:
                 Description: Default Origin Access Control
                 Name: !Ref DomainName
                 SigningBehavior: always
                 SigningProtocol: sigv4
                 OriginAccessControlOriginType: s3
-    
+
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
         DependsOn: S3Bucket
@@ -181,7 +181,7 @@ Resources:
                     - DomainName: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
                       Id: !Sub "${DomainName}"
                       S3OriginConfig:
-                        OriginAccessIdentity: ''
+                          OriginAccessIdentity: ""
                       OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
                 # there are PriceClass_ALL or PriceClass_200/_100
                 PriceClass: PriceClass_100
@@ -197,10 +197,10 @@ Resources:
             Name: !Sub "${AWS::StackName}-redirects"
             FunctionConfig:
                 Comment: !Sub "Redirect to www.${DomainName}"
-                Runtime: cloudfront-js-1.0      
+                Runtime: cloudfront-js-1.0
             FunctionCode: |
                 // This function redirects incoming requests to the equivalent URL with "www." in the host header
-                
+
                 function handler(event) {
                     try {
                         // Extract the incoming request from the event object
@@ -271,7 +271,7 @@ Resources:
                       # Set EvaluateTargetHealth to false to avoid health check issues
                       EvaluateTargetHealth: false
                       # Leave hardcoded, don't confuse w/ !Ref HostedZoneId
-                      HostedZoneId: Z2FDTNDATAQYW2 
+                      HostedZoneId: Z2FDTNDATAQYW2
                 - Name: !Sub "www.${DomainName}"
                   Type: A
                   AliasTarget:
@@ -280,7 +280,7 @@ Resources:
                       HostedZoneId: Z2FDTNDATAQYW2
 
 Outputs:
-  DistributionId:
-    Value: !Ref CloudFrontDistribution
-    Export:
-      Name: "CloudFrontDistributionId"
+    DistributionId:
+        Value: !Ref CloudFrontDistribution
+        Export:
+            Name: "CloudFrontDistributionId"
