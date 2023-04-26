@@ -34,15 +34,6 @@ Resources:
             #                     - "s3:PutObject"
             #                 Resource: !Sub ${S3Bucket.Arn}/*
 
-    S3InvokeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:InvokeFunction
-            FunctionName: !Ref TranscodeFunction
-            Principal: s3.amazonaws.com
-            SourceArn: !Sub ${S3Bucket.Arn}
-            SourceAccount: !Ref AWS::AccountId
-
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
@@ -120,6 +111,15 @@ Resources:
                       Condition:
                           Bool:
                               "aws:SecureTransport": false
+
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            SourceArn: !Sub ${S3Bucket.Arn}
+            SourceAccount: !Ref AWS::AccountId
 
     CloudFrontOriginAccessControl:
         Type: AWS::CloudFront::OriginAccessControl
