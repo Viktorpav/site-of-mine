@@ -99,6 +99,7 @@ Resources:
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
+        DependsOn: S3Bucket
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
