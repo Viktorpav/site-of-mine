@@ -34,15 +34,6 @@ Resources:
                                 - "s3:PutObject"
                             Resource: !Sub ${S3Bucket.Arn}/*
 
-    S3InvokeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:InvokeFunction
-            FunctionName: !Ref TranscodeFunction
-            Principal: s3.amazonaws.com
-            SourceArn: !Sub ${S3Bucket.Arn}
-            SourceAccount: !Ref AWS::AccountId
-
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
@@ -96,6 +87,15 @@ Resources:
                     #               Value: ".mp4"
                     #             - Name: Prefix
                     #               Value: "test-"
+
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            #SourceArn: !Sub ${S3Bucket.Arn}
+            SourceAccount: !Ref AWS::AccountId
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
