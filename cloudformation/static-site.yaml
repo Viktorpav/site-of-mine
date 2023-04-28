@@ -63,7 +63,7 @@ Resources:
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
-            FunctionName: "transcode-function"
+            FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
                 ZipFile: |
                     import boto3
