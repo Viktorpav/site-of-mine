@@ -29,6 +29,11 @@ Resources:
                 LambdaConfigurations:
                     - Event: "s3:ObjectCreated:*"
                       Function: !GetAtt TranscodeFunction.Arn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".mp4"
 
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
