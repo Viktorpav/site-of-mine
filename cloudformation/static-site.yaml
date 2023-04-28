@@ -103,12 +103,6 @@ Resources:
             PolicyDocument:
                 Version: "2012-10-17"
                 Statement:
-                    - Sid: "AllowS3ToTriggerLambda"
-                      Effect: "Allow"
-                      Action: "lambda:InvokeFunction"
-                      Resource: !GetAtt TranscodeFunction.Arn
-                      Principal:
-                          Service: s3.amazonaws.com
                     - Sid: "Grant CloudFront Origin Access Control access to S3 bucket"
                       Effect: "Allow"
                       Action: "s3:GetObject"
