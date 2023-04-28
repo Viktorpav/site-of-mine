@@ -14,6 +14,7 @@ Resources:
         Type: AWS::S3::Bucket
         DeletionPolicy: Retain
         UpdateReplacePolicy: Retain
+        DependsOn: TranscodeFunction
         Properties:
             BucketName: !Sub "${DomainName}"
             BucketEncryption:
