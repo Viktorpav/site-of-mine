@@ -12,7 +12,6 @@ Parameters:
 Resources:
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
-        DependsOn: S3Bucket
         Properties:
             AssumeRolePolicyDocument:
                 Version: "2012-10-17"
@@ -38,7 +37,7 @@ Resources:
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
-            FunctionName: !Sub "${Prefix}-transcode-function"
+            FunctionName: "transcode-function"
             Code:
                 ZipFile: |
                     import boto3
@@ -100,7 +99,6 @@ Resources:
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
-        DependsOn: S3Bucket
         Properties:
             Bucket: !Ref S3Bucket
             PolicyDocument:
@@ -135,7 +133,6 @@ Resources:
 
     CloudFrontDistribution:
         Type: AWS::CloudFront::Distribution
-        DependsOn: S3Bucket
         Properties:
             DistributionConfig:
                 Aliases:
