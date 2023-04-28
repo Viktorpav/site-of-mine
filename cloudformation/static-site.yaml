@@ -12,6 +12,7 @@ Parameters:
 Resources:
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
+        DependsOn: S3Bucket
         Properties:
             AssumeRolePolicyDocument:
                 Version: "2012-10-17"
