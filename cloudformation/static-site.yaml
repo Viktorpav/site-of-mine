@@ -32,11 +32,7 @@ Resources:
                             Action:
                                 - "s3:GetObject"
                                 - "s3:PutObject"
-                            Resource:
-                                Fn::Join:
-                                    - ""
-                                    - - !GetAtt S3Bucket.Arn
-                                        - "/*"
+                            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
