@@ -10,6 +10,33 @@ Parameters:
         Type: String
 
 Resources:
+    S3Bucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        UpdateReplacePolicy: Retain
+        Properties:
+            BucketName: !Sub "${DomainName}"
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                    - ServerSideEncryptionByDefault:
+                          SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
+            NotificationConfiguration:
+                LambdaConfigurations:
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !GetAtt TranscodeFunction.Arn
+                    #   Filter:
+                    #     S3Key:
+                    #         Rules:
+                    #             - Name: Suffix
+                    #               Value: ".mp4"
+                    #             - Name: Prefix
+                    #               Value: "test-"
+
     TranscodeFunctionRole:
         Type: AWS::IAM::Role
         Properties:
@@ -60,33 +87,6 @@ Resources:
             Handler: index.lambda_handler
             Runtime: python3.8
             Role: !GetAtt TranscodeFunctionRole.Arn
-
-    S3Bucket:
-        Type: AWS::S3::Bucket
-        DeletionPolicy: Retain
-        UpdateReplacePolicy: Retain
-        Properties:
-            BucketName: !Sub "${DomainName}"
-            BucketEncryption:
-                ServerSideEncryptionConfiguration:
-                    - ServerSideEncryptionByDefault:
-                          SSEAlgorithm: AES256
-            PublicAccessBlockConfiguration:
-                BlockPublicAcls: true
-                BlockPublicPolicy: true
-                IgnorePublicAcls: true
-                RestrictPublicBuckets: true
-            NotificationConfiguration:
-                LambdaConfigurations:
-                    - Event: "s3:ObjectCreated:*"
-                      Function: !GetAtt TranscodeFunction.Arn
-                    #   Filter:
-                    #     S3Key:
-                    #         Rules:
-                    #             - Name: Suffix
-                    #               Value: ".mp4"
-                    #             - Name: Prefix
-                    #               Value: "test-"
 
     S3InvokeLambdaPermission:
         Type: AWS::Lambda::Permission
