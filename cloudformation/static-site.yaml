@@ -102,6 +102,7 @@ Resources:
 
             Handler: index.lambda_handler
             Runtime: python3.8
+            Architecture: arm64
             Role: !GetAtt TranscodeFunctionRole.Arn
             Layers:
                 - !Ref FFmpegLayer
