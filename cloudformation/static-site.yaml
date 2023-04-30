@@ -65,7 +65,7 @@ Resources:
         Properties:
             LayerName: FFmpegLayer
             Content:
-                S3Bucket: !Sub "arn:aws:s3:::${DomainName}"
+                S3Bucket: !Sub "${DomainName}"
                 S3Key: lambda-layers/ffmpeg-6.0.tar
             CompatibleRuntimes:
                 - python3.8
