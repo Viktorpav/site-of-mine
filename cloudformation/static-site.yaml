@@ -79,6 +79,7 @@ Resources:
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
+        DependsOn: FFmpegLayer
         Properties:
             FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
