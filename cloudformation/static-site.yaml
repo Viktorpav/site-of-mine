@@ -69,6 +69,8 @@ Resources:
                 S3Key: lambda-layers/ffmpeg-layer.zip
             CompatibleRuntimes:
                 - python3.8
+            CompatibleArchitectures:
+                - arm64
 
     FFmpegLayerPermission:
         Type: AWS::Lambda::LayerVersionPermission
@@ -102,7 +104,9 @@ Resources:
 
             Handler: index.lambda_handler
             Runtime: python3.8
-            Architecture: arm64
+            Architectures:
+                - arm64
+            Timeout: 60
             Role: !GetAtt TranscodeFunctionRole.Arn
             Layers:
                 - !Ref FFmpegLayer
