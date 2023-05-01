@@ -211,6 +211,11 @@ Resources:
                     AcmCertificateArn: !Ref CertificateManagerArn
                     MinimumProtocolVersion: TLSv1.2_2021
                     SslSupportMethod: sni-only
+                Restrictions:
+                    GeoRestriction:
+                        RestrictionType: "blacklist"
+                        Items:
+                            - "RU"
 
     RedirectFunction:
         Type: AWS::CloudFront::Function
