@@ -8,6 +8,15 @@ Parameters:
         Type: String
     CertificateManagerArn:
         Type: String
+    # FFmpegLayerFileExists:
+    #     Type: String
+    #     Default: "false"
+    #     AllowedValues:
+    #         - "true"
+    #         - "false"
+
+Conditions:
+    LayerFileExists: !Equals [!Ref FFmpegLayerFileExists, "false"]
 
 Resources:
     S3Bucket:
@@ -61,15 +70,48 @@ Resources:
 
     FFmpegLayer:
         Type: AWS::Lambda::LayerVersion
+        Condition: LayerFileExists
         Properties:
-            LayerName: FFmpegLayer
-            # Content:
-            #     S3Bucket: !Sub "${DomainName}"
-            #     S3Key: lambda-layers/ffmpeg-layer.zip
+            LayerName: !Sub "${Prefix}-FFmpegLayer"
+            Content:
+                S3Bucket: !Sub "${DomainName}"
+                S3Key: lambda-layers/ffmpeg-layer.zip
             CompatibleRuntimes:
                 - python3.10
             CompatibleArchitectures:
                 - arm64
+
+    CheckLayerFileFunction:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: !Sub "${Prefix}-check-layer-file-function"
+            Code:
+                ZipFile: |
+                    import boto3
+
+                    s3 = boto3.client('s3')
+
+                    def lambda_handler(event, context):
+                        bucket = event['ResourceProperties']['S3Bucket']
+                        key = event['ResourceProperties']['S3Key']
+
+                        try:
+                            s3.head_object(Bucket=bucket, Key=key)
+                            return "true"
+                        except s3.exceptions.NoSuchKey:
+                            return "false"
+
+            Handler: index.lambda_handler
+            Runtime: python3.10
+            Timeout: 60
+
+    CheckLayerFileCustomResource:
+        Type: Custom::CheckLayerFileCustomResource
+        Properties:
+            ServiceToken: !GetAtt CheckLayerFileFunction.Arn
+            S3Bucket: !Sub "${DomainName}"
+            S3Key: lambda-layers/ffmpeg-layer.zip
+            LayerFileExists: !Ref LayerFileExists
 
     FFmpegLayerPermission:
         Type: AWS::Lambda::LayerVersionPermission
