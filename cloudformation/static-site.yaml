@@ -25,15 +25,15 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
-            # NotificationConfiguration:
-            #     LambdaConfigurations:
-            #         - Event: "s3:ObjectCreated:*"
-            #           Function: !GetAtt TranscodeFunction.Arn
-            #           Filter:
-            #               S3Key:
-            #                   Rules:
-            #                       - Name: Suffix
-            #                         Value: ".mp4"
+            NotificationConfiguration:
+                LambdaConfigurations:
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !GetAtt TranscodeFunction.Arn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".mp4"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy

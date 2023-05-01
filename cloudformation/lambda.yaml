@@ -91,19 +91,3 @@ Resources:
       Principal: s3.amazonaws.com
       SourceArn: !Sub "arn:aws:s3:::${DomainName}"
       SourceAccount: !Ref AWS::AccountId
-
-  # For S3 bucket triggering
-  S3BucketNotification:
-    Type: AWS::S3::BucketNotificationConfiguration
-    Properties:
-      #Bucket: !Ref S3Bucket
-      Bucket: !Sub "${DomainName}"
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: "s3:ObjectCreated:*"
-            Function: !Ref TranscodeFunction
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: Suffix
-                    Value: ".mp4"
