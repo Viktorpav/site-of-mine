@@ -68,7 +68,7 @@ Resources:
                 S3Bucket: !Sub "${DomainName}"
                 S3Key: lambda-layers/ffmpeg-layer.zip
             CompatibleRuntimes:
-                - python3.8
+                - python3.10
             CompatibleArchitectures:
                 - arm64
 
@@ -103,7 +103,7 @@ Resources:
                         subprocess.run(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-preset', 'slow', '-crf', '22', '-c:a', 'copy', output_path])
 
             Handler: index.lambda_handler
-            Runtime: python3.8
+            Runtime: python3.10
             Architectures:
                 - arm64
             Timeout: 60
