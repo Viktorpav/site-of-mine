@@ -78,11 +78,17 @@ Resources:
             Action: lambda:GetLayerVersion
             Principal: "*"
 
+    S3InvokeLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref TranscodeFunction
+            Principal: s3.amazonaws.com
+            SourceArn: !Sub "arn:aws:s3:::${DomainName}"
+            SourceAccount: !Ref AWS::AccountId
+
     TranscodeFunction:
         Type: AWS::Lambda::Function
-        DependsOn:
-            - S3Bucket
-            - FFmpegLayer
         Properties:
             FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
@@ -112,15 +118,6 @@ Resources:
             Role: !GetAtt TranscodeFunctionRole.Arn
             Layers:
                 - !Ref FFmpegLayer
-
-    S3InvokeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:InvokeFunction
-            FunctionName: !Ref TranscodeFunction
-            Principal: s3.amazonaws.com
-            SourceArn: !Sub "arn:aws:s3:::${DomainName}"
-            SourceAccount: !Ref AWS::AccountId
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
