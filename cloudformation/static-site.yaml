@@ -62,6 +62,7 @@ Resources:
 
     FFmpegLayer:
         Type: AWS::Lambda::LayerVersion
+        DependsOn: S3Bucket
         Properties:
             LayerName: FFmpegLayer
             Content:
