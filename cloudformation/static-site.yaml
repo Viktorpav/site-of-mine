@@ -59,25 +59,6 @@ Resources:
                                 - "s3:PutObject"
                             Resource: !Sub "arn:aws:s3:::${DomainName}/*"
 
-    FFmpegLayer:
-        Type: AWS::Lambda::LayerVersion
-        Properties:
-            LayerName: FFmpegLayer
-            Content:
-                S3Bucket: !Sub "${DomainName}"
-                S3Key: lambda-layers/ffmpeg-layer.zip
-            CompatibleRuntimes:
-                - python3.10
-            CompatibleArchitectures:
-                - arm64
-
-    FFmpegLayerPermission:
-        Type: AWS::Lambda::LayerVersionPermission
-        Properties:
-            LayerVersionArn: !Ref FFmpegLayer
-            Action: lambda:GetLayerVersion
-            Principal: "*"
-
     TranscodeFunction:
         Type: AWS::Lambda::Function
         Properties:
@@ -109,6 +90,25 @@ Resources:
             Role: !GetAtt TranscodeFunctionRole.Arn
             Layers:
                 - !Ref FFmpegLayer
+
+    FFmpegLayer:
+        Type: AWS::Lambda::LayerVersion
+        Properties:
+            LayerName: FFmpegLayer
+            Content:
+                S3Bucket: !Sub "${DomainName}"
+                S3Key: lambda-layers/ffmpeg-layer.zip
+            CompatibleRuntimes:
+                - python3.10
+            CompatibleArchitectures:
+                - arm64
+
+    FFmpegLayerPermission:
+        Type: AWS::Lambda::LayerVersionPermission
+        Properties:
+            LayerVersionArn: !Ref FFmpegLayer
+            Action: lambda:GetLayerVersion
+            Principal: "*"
 
     S3InvokeLambdaPermission:
         Type: AWS::Lambda::Permission
