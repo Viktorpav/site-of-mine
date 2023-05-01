@@ -14,7 +14,6 @@ Resources:
         Type: AWS::S3::Bucket
         DeletionPolicy: Retain
         UpdateReplacePolicy: Retain
-        # DependsOn: TranscodeFunction
         Properties:
             BucketName: !Sub "${DomainName}"
             BucketEncryption:
@@ -62,7 +61,6 @@ Resources:
 
     FFmpegLayer:
         Type: AWS::Lambda::LayerVersion
-        DependsOn: S3Bucket
         Properties:
             LayerName: FFmpegLayer
             Content:
@@ -82,6 +80,9 @@ Resources:
 
     TranscodeFunction:
         Type: AWS::Lambda::Function
+        DependsOn:
+            - S3Bucket
+            - FFmpegLayer
         Properties:
             FunctionName: !Sub "${Prefix}-transcode-function"
             Code:
