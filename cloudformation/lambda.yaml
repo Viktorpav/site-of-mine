@@ -96,7 +96,8 @@ Resources:
   S3BucketNotification:
     Type: AWS::S3::BucketNotificationConfiguration
     Properties:
-      Bucket: !Ref S3Bucket
+      #Bucket: !Ref S3Bucket
+      Bucket: !Sub "${DomainName}"
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: "s3:ObjectCreated:*"
