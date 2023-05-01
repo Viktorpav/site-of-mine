@@ -34,7 +34,6 @@ Resources:
 
   FFmpegLayer:
     Type: AWS::Lambda::LayerVersion
-    Condition: LayerFileExists
     Properties:
       LayerName: !Sub "${Prefix}-FFmpegLayer"
       Content:
