@@ -1,0 +1,29 @@
+name: Deploy of Lambda
+on: [workflow_dispatch]
+# Allows you to run this workflow manually from the Actions tab
+
+jobs:
+  build:
+    # To build the project, take a VM with latest Ubuntu OS for running the next steps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Deploy to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: mystaticwebsite-s3-cloudfront
+          template: cloudformation/lambda.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            DomainName=pavlyshyn.space,
+            Prefix=pavlyshyn-space
