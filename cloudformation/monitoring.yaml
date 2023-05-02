@@ -17,7 +17,7 @@ Resources:
       DisplayName: !Sub "${Prefix}-topic"
       TopicName: !Sub "${Prefix}-topic"
 
-# Create subscribtion of email address to the SNS topic
+  # Create subscribtion of email address to the SNS topic
   EmailSubscription:
     Type: AWS::SNS::Subscription
     Properties:
@@ -25,8 +25,8 @@ Resources:
       TopicArn: !Ref SNSTopic
       Endpoint: !Ref Email
 
-# Create a budget for monitoring S3 and CloudFront costs
-  Budget: 
+  # Create a budget for monitoring S3 and CloudFront costs
+  Budget:
     Type: AWS::Budgets::Budget
     Properties:
       Budget:
@@ -46,8 +46,8 @@ Resources:
             - SubscriptionType: EMAIL
               Address: !Ref Email
 
-# CloudWatch alarm will check the "Requests" metric of the CloudFront distribution every minute
-# and will send an alarm if the sum of requests in the last five minutes is greater than 100
+  # CloudWatch alarm will check the "Requests" metric of the CloudFront distribution every minute
+  # and will send an alarm if the sum of requests in the last five minutes is greater than 100
   CloudFrontRequestsAlarm:
     Type: "AWS::CloudWatch::Alarm"
     Properties:

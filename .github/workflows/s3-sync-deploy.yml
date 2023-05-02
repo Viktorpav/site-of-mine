@@ -4,32 +4,32 @@ on:
   #   branches:
   #   # Here we choose to deploy only when a push is detected on the main branch
   #     - main
-  
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   build:
-  # To build the project, take a VM with latest Ubuntu OS for running the next steps
+    # To build the project, take a VM with latest Ubuntu OS for running the next steps
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@master
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    # Set ENV var for DistributionId
-    - name: Set tag var
-      id: vars
-      run: echo "DistributionId=$(aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='pavlyshyn.space'].id" --output text)" >> $GITHUB_ENV
+      # Set ENV var for DistributionId
+      - name: Set tag var
+        id: vars
+        run: echo "DistributionId=$(aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,origin:Origins.Items[0].Id}[?origin=='pavlyshyn.space'].id" --output text)" >> $GITHUB_ENV
 
-    # To sync content excluding everything beside included
-    - name: Deploy content to S3 bucket
-      run: |
-        aws s3 sync . s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html --include 503.html
-        aws cloudfront create-invalidation --distribution-id $DistributionId --paths '/*'
+      # To sync content excluding everything beside included
+      - name: Deploy content to S3 bucket
+        run: |
+          aws s3 sync . s3://pavlyshyn.space --exclude "*" --include index.html --include 404.html --include 503.html
+          aws cloudfront create-invalidation --distribution-id $DistributionId --paths '/*'

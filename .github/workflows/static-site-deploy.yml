@@ -2,39 +2,38 @@ name: Deploy of S3 and CloudFront
 on:
   push:
     branches:
-    # Here we choose to deploy only when a push is detected on the main branch
+      # Here we choose to deploy only when a push is detected on the main branch
       - main
-  
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 jobs:
   build:
-  # To build the project, take a VM with latest Ubuntu OS for running the next steps
+    # To build the project, take a VM with latest Ubuntu OS for running the next steps
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@master
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    # Set ENV var for CertificateManagerArn
-    - name: Set tag var
-      id: vars
-      run: echo "CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='pavlyshyn.space'].CertificateArn)[0]" --output=text)" >> $GITHUB_ENV
+      # Set ENV var for CertificateManagerArn
+      - name: Set tag var
+        id: vars
+        run: echo "CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='pavlyshyn.space'].CertificateArn)[0]" --output=text)" >> $GITHUB_ENV
 
-    # Deploy to AWS CloudFormation
-    - name: Deploy to AWS CloudFormation
-      uses: aws-actions/aws-cloudformation-github-deploy@v1
-      with:
-        name: mystaticwebsite-s3-cloudfront
-        template: cloudformation/static-site.yaml
-        no-fail-on-empty-changeset: "1"
-        parameter-overrides: >-
-          DomainName=pavlyshyn.space,
-          Prefix=pavlyshyn-space,
-          CertificateManagerArn=${{ env.CertificateManagerArn }}
+      # Deploy to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: mystaticwebsite-s3-cloudfront
+          template: cloudformation/static-site.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            DomainName=pavlyshyn.space,
+            CertificateManagerArn=${{ env.CertificateManagerArn }}
