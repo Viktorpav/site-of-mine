@@ -4,8 +4,6 @@ Description: Deploy a static site
 Parameters:
     DomainName:
         Type: String
-    Prefix:
-        Type: String
     CertificateManagerArn:
         Type: String
 

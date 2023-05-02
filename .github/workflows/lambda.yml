@@ -27,3 +27,11 @@ jobs:
           parameter-overrides: >-
             DomainName=pavlyshyn.space,
             Prefix=pavlyshyn-space
+
+      # Deploy S3 update to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: mystaticwebsite-s3-cloudfront
+          template: cloudformation/static-site-S3.yaml
+          no-fail-on-empty-changeset: "1"
