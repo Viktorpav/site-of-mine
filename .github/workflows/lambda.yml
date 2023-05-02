@@ -21,7 +21,7 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: mystaticwebsite-s3-cloudfront
+          name: mystaticwebsite-lambda
           template: cloudformation/lambda.yaml
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-

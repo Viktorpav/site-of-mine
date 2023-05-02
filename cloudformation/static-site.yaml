@@ -25,15 +25,15 @@ Resources:
                 BlockPublicPolicy: true
                 IgnorePublicAcls: true
                 RestrictPublicBuckets: true
-            NotificationConfiguration:
-                LambdaConfigurations:
-                    - Event: "s3:ObjectCreated:*"
-                      Function: !ImportValue TranscodeFunctionArn
-                      Filter:
-                          S3Key:
-                              Rules:
-                                  - Name: Suffix
-                                    Value: ".mp4"
+            # NotificationConfiguration:
+            #     LambdaConfigurations:
+            #         - Event: "s3:ObjectCreated:*"
+            #           Function: !ImportValue TranscodeFunctionArn
+            #           Filter:
+            #               S3Key:
+            #                   Rules:
+            #                       - Name: Suffix
+            #                         Value: ".mp4"
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
@@ -227,7 +227,7 @@ Outputs:
         Value: !Ref CloudFrontDistribution
         Export:
             Name: "CloudFrontDistributionId"
-    S3Bucket:
+    S3BucketName:
         Value: !Ref S3Bucket
         Export:
-            Name: S3Bucket
+            Name: !Sub "${AWS::StackName}-S3BucketName"
