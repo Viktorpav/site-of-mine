@@ -28,7 +28,7 @@ Resources:
             NotificationConfiguration:
                 LambdaConfigurations:
                     - Event: "s3:ObjectCreated:*"
-                      Function: !GetAtt TranscodeFunction.Arn
+                      Function: !ImportValue TranscodeFunctionArn
                       Filter:
                           S3Key:
                               Rules:
@@ -227,3 +227,7 @@ Outputs:
         Value: !Ref CloudFrontDistribution
         Export:
             Name: "CloudFrontDistributionId"
+    S3Bucket:
+        Value: !Ref S3Bucket
+        Export:
+            Name: S3Bucket

@@ -91,3 +91,9 @@ Resources:
       Principal: s3.amazonaws.com
       SourceArn: !Sub "arn:aws:s3:::${DomainName}"
       SourceAccount: !Ref AWS::AccountId
+
+Outputs:
+  TranscodeFunctionArn:
+    Value: !GetAtt TranscodeFunction.Arn
+    Export:
+      Name: TranscodeFunctionArn

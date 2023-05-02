@@ -1,0 +1,17 @@
+Resources:
+  StaticSiteStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: static-site.yaml
+
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: lambda.yaml
+      Parameters:
+        S3Bucket: !GetAtt StaticSiteStack.Outputs.S3Bucket
+
+Outputs:
+  S3Bucket:
+    Description: The S3 bucket created by the S3BucketStack
+    Value: !GetAtt StaticSiteStack.Outputs.S3Bucket
