@@ -74,7 +74,7 @@ Resources:
               s3.download_file(bucket, key, download_path)
               
               # Use FFmpeg to convert the video to mp4 format
-              subprocess.run(['ffmpeg', '-i', download_path, '-vcodec', 'libx264', '-acodec', 'aac', '-y', upload_path])
+              subprocess.run(['/opt/bin/ffmpeg', '-i', download_path, '-vcodec', 'libx264', '-acodec', 'aac', '-y', upload_path])
 
               # Upload the converted video back to S3
               s3.upload_file(upload_path, bucket, 'converted/{}'.format(key))
