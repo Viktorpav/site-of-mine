@@ -40,8 +40,6 @@ Resources:
                           - "*"
                       AllowedMethods:
                           - GET
-                          - PUT
-                          - DELETE
                       MaxAge: 3000
                     #   ExposeHeaders:
                     #       - ETag
@@ -116,6 +114,9 @@ Resources:
                         Cookies:
                             Forward: none
                         QueryString: true
+                        Headers:
+                            - Access-Control-Request-Headers
+                            - Access-Control-Request-Method
                     MaxTTL: 31536000
                     MinTTL: 0
                     SmoothStreaming: false
