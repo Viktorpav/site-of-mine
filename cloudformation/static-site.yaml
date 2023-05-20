@@ -40,6 +40,8 @@ Resources:
                           - "*"
                       AllowedMethods:
                           - GET
+                          - PUT
+                          - DELETE
                       MaxAge: 3000
                     #   ExposeHeaders:
                     #       - ETag
