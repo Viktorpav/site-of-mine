@@ -35,7 +35,8 @@ Resources:
             CorsConfiguration:
                 CorsRules:
                     - AllowedOrigins:
-                          - !Sub "https://www.${DomainName}"
+                          - "*"
+                          #   - !Sub "https://www.${DomainName}"
                       AllowedHeaders:
                           - "*"
                       AllowedMethods:
