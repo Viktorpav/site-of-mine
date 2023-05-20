@@ -41,11 +41,11 @@ Resources:
                       AllowedMethods:
                           - GET
                       MaxAge: 3000
-                      ExposeHeaders:
-                          - ETag
-                          - x-amz-meta-custom-header
-                          - Content-Length
-                          - Content-Range
+                    #   ExposeHeaders:
+                    #       - ETag
+                    #       - x-amz-meta-custom-header
+                    #       - Content-Length
+                    #       - Content-Range
 
     S3BucketPolicy:
         Type: AWS::S3::BucketPolicy
