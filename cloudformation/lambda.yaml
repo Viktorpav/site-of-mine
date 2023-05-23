@@ -71,6 +71,9 @@ Resources:
                   key = record['s3']['object']['key']
                   download_path = '/tmp/{}'.format(os.path.basename(key))
                   upload_folder = '/tmp/hls-{}'.format(os.path.splitext(os.path.basename(key))[0])
+                  
+                  # Create the output directory if it doesn't exist
+                  os.makedirs(upload_folder, exist_ok=True)
 
                   # Download the video file from S3 to the Lambda function's temp storage
                   s3.download_file(bucket, key, download_path)
