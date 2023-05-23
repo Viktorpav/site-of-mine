@@ -74,7 +74,8 @@ Resources:
               s3.download_file(bucket, key, download_path)
               
               # Use FFmpeg to convert the video to mp4 format
-              command = ['/opt/bin/ffmpeg', '-i', download_path, '-vcodec', 'libx264', '-acodec', 'aac', '-crf', '23', '-y', upload_path]
+              command = ['/opt/bin/ffmpeg', '-i', download_path, '-vcodec', 'libx264', '-acodec', 'aac', '-crf', '23', '-profile:v', 'high', '-y', upload_path]
+              
               try:
                   output = subprocess.check_output(command, stderr=subprocess.STDOUT)
                   print(f"FFmpeg output: {output}")

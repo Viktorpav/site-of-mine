@@ -9,26 +9,71 @@
   <meta name="keywords" content="html tutorial template">
 
   <style>
-    /* Center the video container */
-    .video-container {
-      position: relative;
-      display: inline-block;
-      text-align: center;
+    /* Global styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
 
-    #video-overlay {
+    .container {
+      display: flex;
+    }
+
+    /* Left section styles */
+    .left-section {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* Right section styles */
+    .right-section {
+      flex: 2;
+      /* Adjust this to make the video section wider */
+      display: flex;
+      flex-wrap: wrap;
+      /* Enable wrapping for video items */
+      justify-content: flex-start;
+      /* Align items to the start */
+      align-items: flex-start;
+      /* Align items to the top */
+      padding: 20px;
+      /* Add some padding for aesthetics */
+      height: 100vh;
+      overflow: auto;
+      /* Enable scrolling when videos overflow the section */
+    }
+
+    /* Video item styles */
+    .video-item {
+      flex: 1 1 33%;
+      /* Make each video item take up about a third of the container width */
+      max-width: 33%;
+      /* Limit maximum width to a third of the container width */
+      position: relative;
+      margin: 10px;
+      /* Add some margin between video items */
+      box-sizing: border-box;
+      /* Include padding and border in element's total width and height */
+    }
+
+    /* Video container styles */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      /* Maintain a 16:9 aspect ratio */
+      overflow: hidden;
+      /* Hide any content that doesn't fit inside the container */
+    }
+
+    /* Adjusted the video size, add a box shadow, and removed default video controls styling */
+    video {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0);
-    }
-
-    /* Adjusted the video size, add a box shadow and removed default video controls styling */
-    video {
-      max-width: 100%;
-      height: auto;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     }
 
@@ -61,11 +106,33 @@
 <body>
   Content goes here. More and more we are looking for
   <a href="https://github.com/Viktorpav/site-of-mine">Link to the repo of the site</a>
-
-  <div class="video-container">
-    <video id="video" controls muted></video>
-    <div id="video-overlay"></div>
-    <div class="loading">Loading...</div>
+  <div class="container">
+    <div class="left-section">
+      <h1>Video Information</h1>
+      <p>Here you can provide some text about the video or any additional information you want to display.</p>
+      <h2>Comments</h2>
+      <div>
+        <!-- Add your comment section HTML here -->
+      </div>
+    </div>
+    <div class="right-section">
+      <!-- Repeat this structure for each video -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video" controls muted></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      <!-- Add more video items here -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video" controls muted></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
