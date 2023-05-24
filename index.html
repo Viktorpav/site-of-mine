@@ -67,6 +67,16 @@
       /* Hide any content that doesn't fit inside the container */
     }
 
+    #video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0);
+      /* make it invisible but still interactive */
+    }
+
     /* Adjusted the video size, add a box shadow, and removed default video controls styling */
     video {
       position: absolute;
@@ -74,7 +84,11 @@
       left: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
+      /* Scale video to fill container while maintaining aspect ratio */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      max-width: none;
+      max-height: none;
     }
 
     video::-webkit-media-controls,
@@ -119,7 +133,7 @@
       <!-- Repeat this structure for each video -->
       <div class="video-item">
         <div class="video-container">
-          <video id="video" controls muted></video>
+          <video id="video1" controls muted playsinline></video>
           <div id="video-overlay"></div>
           <div class="loading">Loading...</div>
         </div>
@@ -127,8 +141,15 @@
       <!-- Add more video items here -->
       <div class="video-item">
         <div class="video-container">
-          <video id="video" controls muted></video>
+          <video id="video2" controls muted playsinline></video>
           <div id="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video3" controls muted playsinline></video>
+          <div class="video-overlay"></div>
           <div class="loading">Loading...</div>
         </div>
       </div>
@@ -138,71 +159,77 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <script>
-    const video = document.getElementById('video');
-    const loading = document.querySelector('.loading');
-    const overlay = document.getElementById('video-overlay');
-    let isClicked = false;
-    let mouseOverActive = true;
+    const videos = document.querySelectorAll('video');
+    const loadings = document.querySelectorAll('.loading');
+    const overlays = document.querySelectorAll('#video-overlay');
+    let isClicked = [false, false];
+    let mouseOverActive = [true, true];
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const clickEvent = isMobile ? 'touchstart' : 'click';
+    const videoUrls = ['https://www.pavlyshyn.space/converted/video-same/index.m3u8', 'https://www.pavlyshyn.space/converted/video2/index.m3u8', 'https://www.pavlyshyn.space/converted/s06e10.mp4'];
 
-    function handleVideoLoad() {
-      video.classList.remove('loading');
-      loading.classList.remove('loading');
-    }
+    videos.forEach((video, i) => {
+      const loading = loadings[i];
+      const overlay = overlays[i];
 
-    function handleError(event, data) {
-      if (data.fatal) {
-        console.error(`${data.type} error occurred, trying to recover...`);
-        data.type === Hls.ErrorTypes.NETWORK_ERROR ? hls.startLoad() : hls.recoverMediaError();
+      function handleVideoLoad() {
+        video.classList.remove('loading');
+        loading.classList.remove('loading');
       }
-    }
 
-    function handlePlay() {
-      if (!isClicked) {
-        video.muted = false;
-        video.play().then(() => {
-          isClicked = true;
-          mouseOverActive = false;
-        }).catch(() => {
-          isClicked = false;
-        });
+      function handleError(event, data) {
+        if (data.fatal) {
+          console.error(`${data.type} error occurred, trying to recover...`);
+          data.type === Hls.ErrorTypes.NETWORK_ERROR ? hls.startLoad() : hls.recoverMediaError();
+        }
+      }
+
+      function handlePlay() {
+        if (!isClicked[i]) {
+          video.muted = false;
+          video.play().then(() => {
+            isClicked[i] = true;
+            mouseOverActive[i] = false;
+          }).catch(() => {
+            isClicked[i] = false;
+          });
+        } else {
+          video.pause();
+          isClicked[i] = false;
+        }
+      }
+
+      function handleMouseOver() {
+        if (mouseOverActive[i] && !isClicked[i] && video.paused && !isMobile) {
+          video.muted = true;  // Ensure the video is muted
+          video.play();
+        }
+      }
+
+      function handleMouseOut() {
+        if (mouseOverActive[i] && !isClicked[i]) {
+          video.pause();
+        }
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoUrls[i]);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_LOADING, handleVideoLoad);
+        hls.on(Hls.Events.MANIFEST_PARSED, handleVideoLoad);
+        hls.on(Hls.Events.ERROR, handleError);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrls[i];
+        video.addEventListener('loadedmetadata', handleVideoLoad);
       } else {
-        video.pause();
-        isClicked = false;
+        video.innerHTML = "Your browser does not support video playback.";
       }
-    }
 
-    function handleMouseOver() {
-      if (mouseOverActive && !isClicked && video.paused && !isMobile) {
-        video.play();
-        video.muted = true;
-      }
-    }
-
-    function handleMouseOut() {
-      if (mouseOverActive && !isClicked) {
-        video.pause();
-      }
-    }
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource('https://www.pavlyshyn.space/hls/video-same/index.m3u8');
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_LOADING, handleVideoLoad);
-      hls.on(Hls.Events.MANIFEST_PARSED, handleVideoLoad);
-      hls.on(Hls.Events.ERROR, handleError);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = 'https://www.pavlyshyn.space/hls/video-same/index.m3u8';
-      video.addEventListener('loadedmetadata', handleVideoLoad);
-    } else {
-      video.innerHTML = "Your browser does not support video playback.";
-    }
-
-    overlay.addEventListener(clickEvent, handlePlay);
-    overlay.addEventListener('mouseover', handleMouseOver);
-    overlay.addEventListener('mouseout', handleMouseOut);
+      overlay.addEventListener(clickEvent, handlePlay);
+      overlay.addEventListener('mouseover', handleMouseOver);
+      overlay.addEventListener('mouseout', handleMouseOut);
+    });
   </script>
 </body>
 

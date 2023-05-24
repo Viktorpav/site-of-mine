@@ -32,10 +32,37 @@ Resources:
                               Rules:
                                   - Name: Suffix
                                     Value: ".mov"
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !ImportValue TranscodeFunctionArn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".mp4"
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !ImportValue TranscodeFunctionArn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".avi"
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !ImportValue TranscodeFunctionArn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".flv"
+                    - Event: "s3:ObjectCreated:*"
+                      Function: !ImportValue TranscodeFunctionArn
+                      Filter:
+                          S3Key:
+                              Rules:
+                                  - Name: Suffix
+                                    Value: ".mkv"
             CorsConfiguration:
                 CorsRules:
                     - AllowedOrigins:
-                          #   - "*"
                           - !Sub "https://www.${DomainName}"
                       AllowedHeaders:
                           - "*"
