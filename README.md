@@ -9,11 +9,23 @@ The idea to create a skillet of fully automated flow of creating static website,
 
 1. [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) :shipit:
 2. [Configuration of AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html) *insert your own AWS account values as described in the link.*
-3. Create Hosted zone record in Route53
+3. Before provisioning infra we need to add secrets and veriables in Github
+Secrets->Repository secrets:
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_REGION
+AWS_S3BUCKET_NAME pavlyshyn.work
+
+Variables->Repository variables:
+DOMAIN_NAME pavlyshyn.work
+
+4. Create manually S3 bucket 
+
+
+5. Create Hosted zone record in Route53
 ``` 
-aws route53 create-hosted-zone --name <your domain name> \
---caller-reference <any unique string>\
---hosted-zone-config Comment='using aws cli',PrivateZone=false
+aws route53 create-hosted-zone --name pavlyshyn.space --caller-reference "23-12-2023" --hosted-zone-config Comment="using aws cli",PrivateZone=false
+
 ```
 4. [Add hosted zone records of NS to DNS provider(move to AWS records) or choose and create in AWS](https://www.virtuallyboring.com/migrate-godaddy-domain-and-dns-to-aws-route-53/)
 
