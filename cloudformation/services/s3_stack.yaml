@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy S3 bucket for a static site
+
+Parameters:
+  DomainName:
+    Type: String
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${DomainName}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: "s3:ObjectCreated:*"
+            Function: !ImportValue TranscodeFunctionArn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: Suffix
+                    Value: ".mov"
+          - Event: "s3:ObjectCreated:*"
+            Function: !ImportValue TranscodeFunctionArn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: Suffix
+                    Value: ".mp4"
+          - Event: "s3:ObjectCreated:*"
+            Function: !ImportValue TranscodeFunctionArn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: Suffix
+                    Value: ".avi"
+          - Event: "s3:ObjectCreated:*"
+            Function: !ImportValue TranscodeFunctionArn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: Suffix
+                    Value: ".flv"
+          - Event: "s3:ObjectCreated:*"
+            Function: !ImportValue TranscodeFunctionArn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: Suffix
+                    Value: ".mkv"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Sub "https://www.${DomainName}"
+            AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+            MaxAge: 3000
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "Grant CloudFront Origin Access Control access to S3 bucket"
+            Effect: "Allow"
+            Action: "s3:GetObject"
+            Resource: !Sub ${S3Bucket.Arn}/*
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: !Sub ${S3Bucket.Arn}/*
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
+Outputs:
+  S3BucketName:
+    Value: !Ref S3Bucket
+    Export:
+      Name: "S3BucketName"

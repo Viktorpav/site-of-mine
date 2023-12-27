@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy a static site with Lambda function for transcoding videos triggered by S3 events
+
+Parameters:
+  DomainName:
+    Type: String
+  Prefix:
+    Type: String
+  CertificateManagerArn:
+    Type: String
+
+Resources:
+  S3BucketStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: static-site.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: lambda.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+        Prefix: !Ref Prefix
+
+Outputs:
+  CloudFrontDistributionId:
+    Value: !GetAtt S3BucketStack.Outputs.CloudFrontDistributionId
+    Export:
+      Name: CloudFrontDistributionId
+
+  S3BucketName:
+    Value: !GetAtt S3BucketStack.Outputs.S3BucketName
+    Export:
+      Name: S3BucketName
+
+  TranscodeFunctionArn:
+    Value: !GetAtt LambdaStack.Outputs.TranscodeFunctionArn
+    Export:
+      Name: TranscodeFunctionArn

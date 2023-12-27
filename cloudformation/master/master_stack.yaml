@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy a static site using nested stacks
+
+Parameters:
+  Prefix:
+    Type: String # Add Prefix parameter here because it is only one variable which need to be defined
+
+Resources:
+  S3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: services/s3_stack.yaml
+      Parameters:
+        DomainName: !Ref S3BucketName
+
+  CloudFrontStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: services/cloudfront_stack.yaml
+      Parameters:
+        DomainName: !Ref S3BucketName
+        CertificateManagerArn: !Ref Certificate
+
+  Route53Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: services/route53_stack.yaml
+      Parameters:
+        DomainName: !Ref S3BucketName
+
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: services/lambda_stack.yaml
+      Parameters:
+        DomainName: !Ref S3BucketName
+        Prefix: !Ref Prefix
+
+  ACMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateFile: services/acm_stack.yaml
+      Parameters:
+        DomainName: !Ref S3BucketName
+        HostedZoneId: !Ref CloudFrontDistribution

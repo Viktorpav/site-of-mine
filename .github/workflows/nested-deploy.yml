@@ -1,0 +1,56 @@
+name: Deploy CloudFormation Nested Stack
+
+on:
+#   push:
+#     branches:
+#       - main  # Change this to your main branch
+
+  # # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Set ENV var for CertificateManagerArn
+      - name: Set CertificateManagerArn var
+        run: |
+          CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='${{ env.DOMAIN_NAME }}'].CertificateArn)[0]" --output=text)
+          if [ -z "$CertificateManagerArn" ]; then
+            echo "Error: CertificateManagerArn not found for domain $DOMAIN_NAME"
+            exit 1
+          fi
+          echo "CertificateManagerArn=$CertificateManagerArn" >> $GITHUB_ENV
+      
+      # Set ENV var for HostedZoneId
+      - name: Set HostedZoneId var
+        run: |
+          HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.work --query "HostedZones[].Id" --output=text | cut -d/ -f3)
+          if [ -z "$HostedZoneId" ]; then
+            echo "Error: HostedZoneId not found for domain pavlyshyn.work"
+            exit 1
+          fi
+          echo "HostedZoneId=$HostedZoneId" >> $GITHUB_ENV
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: mystaticwebsite-s3-cloudfront
+          template: cloudformation/master/master_stack.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            DomainName=${{ env.DOMAIN_NAME }},
+            Prefix=pavlyshyn-work
+            CertificateManagerArn=${{ env.CertificateManagerArn }}
+            HostedZoneId=${{ env.HostedZoneId }}
