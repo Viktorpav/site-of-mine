@@ -18,8 +18,7 @@ AWS_S3BUCKET_NAME pavlyshyn.work
 
 Variables->Repository variables:
 DOMAIN_NAME pavlyshyn.work
-
-4. Create manually S3 bucket 
+PREFIX pavlyshyn-work
 
 
 5. Create Hosted zone record in Route53

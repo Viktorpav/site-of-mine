@@ -1,9 +1,9 @@
 name: Deploy of S3 and CloudFront
 on:
-  push:
-    branches:
-      # Here we choose to deploy only when a push is detected on the main branch
-      - main
+  # push:
+  #   branches:
+  #     # Here we choose to deploy only when a push is detected on the main branch
+  #     - main
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
       # Set ENV var for CertificateManagerArn
       - name: Set CertificateManagerArn var
         run: |
-          CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='${{ env.DOMAIN_NAME }}'].CertificateArn)[0]" --output=text)
+          CertificateManagerArn=$(aws acm list-certificates --region us-east-1 --query "(CertificateSummaryList[?DomainName=='${{ secrets.DOMAIN_NAME }}'].CertificateArn)[0]" --output=text)
           echo "CertificateManagerArn=$CertificateManagerArn" >> $GITHUB_ENV
 
       # Deploy to AWS CloudFormation
@@ -36,5 +36,5 @@ jobs:
           template: cloudformation/static-site.yaml
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
-            DomainName=${{ env.DOMAIN_NAME }},
+            DomainName=${{ secrets.DOMAIN_NAME }},
             CertificateManagerArn=${{ env.CertificateManagerArn }}

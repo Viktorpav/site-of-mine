@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -36,9 +36,9 @@ jobs:
       # Set ENV var for HostedZoneId
       - name: Set HostedZoneId var
         run: |
-          HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name pavlyshyn.work --query "HostedZones[].Id" --output=text | cut -d/ -f3)
+          HostedZoneId=$(aws route53 list-hosted-zones-by-name --dns-name ${{ secrets.DOMAIN_NAME }} --query "HostedZones[].Id" --output=text | cut -d/ -f3)
           if [ -z "$HostedZoneId" ]; then
-            echo "Error: HostedZoneId not found for domain pavlyshyn.work"
+            echo "Error: HostedZoneId not found for domain $DOMAIN_NAME"
             exit 1
           fi
           echo "HostedZoneId=$HostedZoneId" >> $GITHUB_ENV
@@ -51,6 +51,6 @@ jobs:
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
             DomainName=${{ secrets.DOMAIN_NAME }},
-            Prefix=pavlyshyn-work
-            CertificateManagerArn=${{ env.CertificateManagerArn }}
+            Prefix=${{ secrets.PREFIX }},
+            CertificateManagerArn=${{ env.CertificateManagerArn }},
             HostedZoneId=${{ env.HostedZoneId }}
