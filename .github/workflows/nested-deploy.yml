@@ -53,4 +53,5 @@ jobs:
             DomainName=${{ secrets.DOMAIN_NAME }},
             Prefix=${{ secrets.PREFIX }},
             CertificateManagerArn=${{ env.CertificateManagerArn }},
-            HostedZoneId=${{ env.HostedZoneId }}
+            HostedZoneId=${{ env.HostedZoneId }},
+            TranscodeFunctionArn=${{ env.TranscodeFunctionArn }}

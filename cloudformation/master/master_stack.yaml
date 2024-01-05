@@ -10,6 +10,8 @@ Parameters:
     Type: String
   HostedZoneId:
     Type: String
+  TranscodeFunctionArn:
+    Type: String
 
 Resources:
   S3Stack:
@@ -18,6 +20,7 @@ Resources:
       TemplateURL: "https://pavlyshyn-work-stack.s3.eu-central-1.amazonaws.com/services/s3_stack.yaml"
       Parameters:
         DomainName: !Ref DomainName
+        TranscodeFunctionArn: !ImportValue TranscodeFunctionArn
 
   CloudFrontStack:
     Type: AWS::CloudFormation::Stack

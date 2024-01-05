@@ -4,6 +4,8 @@ Description: Deploy S3 bucket for a static site
 Parameters:
   DomainName:
     Type: String
+  TranscodeFunctionArn:
+    Type: String
 
 Resources:
   S3Bucket:
