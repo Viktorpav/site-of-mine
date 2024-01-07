@@ -1,4 +1,10 @@
 .DS_Store
 media/
 video/
-lambda-layers/*
+terraform/modules/lambda/lambda-function/transcode_function.zip
+terraform/modules/lambda/lambda-layers/ffmpeg-layer.zip
+
+# Terraform for swat infrastructure Prod
+terraform/.terraform/*
+terraform/*.tfstate
+terraform/*.tfstate.*
