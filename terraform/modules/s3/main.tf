@@ -69,3 +69,9 @@ resource "aws_s3_bucket_policy" "site_bucket_policy" {
     ]
   })
 }
+
+# S3 bucket for CloudPipeline deployment
+resource "aws_s3_bucket" "deployment_bucket" {
+  bucket = "${var.prefix}-deployment"
+}
+

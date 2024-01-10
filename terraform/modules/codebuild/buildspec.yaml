@@ -1,0 +1,12 @@
+version: 0.2
+
+env:
+  variables:
+    BUCKET_NAME: "${bucket_name}"
+    DISTRIBUTION_ID: "${cloudfront_distribution_id}"
+
+phases:
+  build:
+    commands:
+      - aws s3 sync . "s3://$BUCKET_NAME" --exclude '*' --include '*.html' --include '*.css' --include '*.js'
+      - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'

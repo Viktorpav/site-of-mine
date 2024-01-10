@@ -1,5 +1,5 @@
 resource "aws_iam_role" "transcode_function_role" {
-  name = "TranscodeFunctionRole"
+  name = "${var.prefix}-TranscodeFunctionRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",

@@ -1,9 +1,14 @@
-resource "aws_codepipeline" "my_pipeline" {
-  name     = "github-to-s3-pipeline"
-  role_arn = aws_iam_role.codepipeline_role.arn # Define a role for CodePipeline
+resource "aws_codestarconnections_connection" "github_connection" {
+  name          = "${var.prefix}-S3GitHub"
+  provider_type = "GitHub"
+}
+
+resource "aws_codepipeline" "s3_pipeline" {
+  name     = "${var.prefix}-github-to-s3-pipeline"
+  role_arn = var.codepipeline_role_arn
 
   artifact_store {
-    location = "your-bucket-for-artifacts" # Replace with your S3 bucket for pipeline artifacts
+    location = var.s3_deployment_bucket # Replace with your S3 bucket for pipeline artifacts
     type     = "S3"
   }
 
@@ -11,19 +16,34 @@ resource "aws_codepipeline" "my_pipeline" {
     name = "Source"
 
     action {
-      name             = "SourceAction"
+      name             = "Source"
       category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
       version          = "1"
       output_artifacts = ["source_output"]
+      configuration = {
+        ConnectionArn    = aws_codestarconnections_connection.github_connection.arn
+        FullRepositoryId = var.github_repo
+        BranchName       = var.branch_name
+      }
+    }
+  }
+
+  stage {
+    name = "Build"
+
+    action {
+      name            = "Build"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["source_output"]
+
 
       configuration = {
-        Owner                = var.github_owner
-        Repo                 = var.github_repo
-        Branch               = "main" # Replace with your branch name
-        OAuthToken           = var.github_token
-        PollForSourceChanges = "true"
+        ProjectName = var.codebuild_project
       }
     }
   }
@@ -32,14 +52,16 @@ resource "aws_codepipeline" "my_pipeline" {
     name = "Deploy"
 
     action {
-      name            = "DeployToS3"
+      name            = "Deploy"
       category        = "Deploy"
       owner           = "AWS"
-      provider        = "CodeBuild"
+      provider        = "S3"
       input_artifacts = ["source_output"]
+      version         = "1"
 
       configuration = {
-        ProjectName = aws_codebuild_project.deploy_project.name
+        BucketName = var.domain_name
+        Extract    = "true"
       }
     }
   }

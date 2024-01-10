@@ -48,3 +48,40 @@ module "acm" {
   prefix      = var.prefix
   domain_name = var.domain_name
 }
+
+module "iam" {
+  source               = "./modules/iam"
+  prefix               = var.prefix
+  domain_name          = var.domain_name
+  s3_website_bucket    = module.s3.s3_website_bucket.arn
+  s3_deployment_bucket = module.s3.s3_deployment_bucket.arn
+  codebuild_project    = module.codebuild.codebuild_project.arn
+}
+
+module "codepipeline" {
+  source                = "./modules/codepipeline"
+  prefix                = var.prefix
+  domain_name           = var.domain_name
+  github_owner          = var.github_owner
+  github_repo           = var.github_repo
+  branch_name           = var.branch_name
+  codepipeline_role_arn = module.iam.codepipeline_role_arn
+  s3_deployment_bucket  = module.s3.s3_deployment_bucket.name
+  codebuild_project     = module.codebuild.codebuild_project.name
+}
+
+module "codebuild" {
+  source                     = "./modules/codebuild"
+  prefix                     = var.prefix
+  domain_name                = var.domain_name
+  cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
+  codebuild_role_arn         = module.iam.codebuild_role_arn
+  s3_website_bucket          = module.s3.s3_website_bucket.name
+  cloudbuild_log             = module.cloudwatch.cloudbuild_log
+}
+
+module "cloudwatch" {
+  source      = "./modules/cloudwatch"
+  prefix      = var.prefix
+  domain_name = var.domain_name
+}
