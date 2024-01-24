@@ -1,15 +1,17 @@
-resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = var.domain_name
+data "aws_region" "current" {}
+
+resource "aws_cloudfront_origin_access_control" "cloudfront_origin_access_control" {
+  name                              = var.domain_name
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = "${var.domain_name}.s3.amazonaws.com"
-    origin_id   = var.domain_name
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
-    }
+    domain_name              = "${var.domain_name}.s3.${data.aws_region.current.name}.amazonaws.com"
+    origin_id                = var.domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_origin_access_control.id
   }
 
   aliases = [
@@ -51,6 +53,33 @@ resource "aws_cloudfront_distribution" "distribution" {
     ssl_support_method       = "sni-only"
   }
 
+  custom_error_response {
+    error_code            = 404
+    response_code         = 404
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 60
+  }
+
+  custom_error_response {
+    error_code            = 403
+    response_code         = 403
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 60
+  }
+
+  custom_error_response {
+    error_code            = 503
+    response_code         = 503
+    response_page_path    = "/503.html"
+    error_caching_min_ttl = 5
+  }
+
+  logging_config {
+    bucket          = var.s3_logs_bucket.domain_name
+    include_cookies = false
+    prefix          = "cloudfront-logs/"
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "blacklist"
@@ -77,7 +106,7 @@ resource "aws_route53_record" "www_record" {
 
   alias {
     name                   = aws_cloudfront_distribution.distribution.domain_name
-    zone_id                = "Z2FDTNDATAQYW2" # CloudFront zone ID
+    zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
     evaluate_target_health = false
   }
 }

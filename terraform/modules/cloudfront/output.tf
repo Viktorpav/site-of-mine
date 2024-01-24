@@ -1,4 +1,7 @@
-output "cloudfront_distribution_id" {
-  description = "The CloudFront Distribution ID"
-  value       = aws_cloudfront_distribution.distribution.id
+output "cloudfront_distribution" {
+  value = {
+    id          = aws_cloudfront_distribution.distribution.id
+    arn         = aws_cloudfront_distribution.distribution.arn
+    domain_name = aws_cloudfront_distribution.distribution.domain_name
+  }
 }

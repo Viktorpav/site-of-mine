@@ -8,5 +8,5 @@ env:
 phases:
   build:
     commands:
-      - aws s3 sync . "s3://$BUCKET_NAME" --exclude '*' --include '*.html' --include '*.css' --include '*.js'
+      - aws s3 sync . "s3://$BUCKET_NAME" --exclude '*' --include '*.html' --include '*.css' --include '*.js' --include 'favicon.ico'
       - aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'

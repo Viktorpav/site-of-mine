@@ -14,7 +14,7 @@ resource "aws_codebuild_project" "deploy_project" {
     type = "NO_SOURCE"
     buildspec = templatefile("${path.module}/buildspec.yaml", {
       bucket_name                = var.s3_website_bucket
-      cloudfront_distribution_id = var.cloudfront_distribution_id
+      cloudfront_distribution_id = var.cloudfront_distribution
     })
   }
 

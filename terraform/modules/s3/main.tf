@@ -1,25 +1,23 @@
-resource "aws_s3_bucket" "site_bucket" {
-  bucket = var.domain_name
-
-  lifecycle {
-    prevent_destroy = true
-  }
+# S3 bucket for CloudPipeline deployment
+resource "aws_s3_bucket" "deployment_bucket" {
+  bucket = "${var.prefix}-deployment"
 }
 
-# Configure the Lambda notifications
-# Replace the placeholders with the actual ARN of the Lambda function
-# for the respective file types
+# S3 bucket for S3 logs and CloudFront
+resource "aws_s3_bucket" "logs_bucket" {
+  bucket = "${var.prefix}-logs"
+}
 
-# Add similar blocks for other file types (.mp4, .avi, etc.)
-resource "aws_s3_bucket_notification" "site_bucket_notification" {
+resource "aws_s3_bucket_logging" "site_bucket_logs" {
   bucket = aws_s3_bucket.site_bucket.id
 
-  lambda_function {
-    lambda_function_arn = var.transcode_function_arn
-    events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = ""
-    filter_suffix       = ".mp4"
-  }
+  target_bucket = aws_s3_bucket.logs_bucket.id
+  target_prefix = "s3-logs/"
+}
+
+# S3 bucket for Website
+resource "aws_s3_bucket" "site_bucket" {
+  bucket = var.domain_name
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "site_bucket_encryption" {
@@ -36,42 +34,31 @@ resource "aws_s3_bucket_cors_configuration" "site_bucket_cors" {
   bucket = aws_s3_bucket.site_bucket.id
 
   cors_rule {
-    allowed_origins = ["https://www.${var.domain_name}"]
+    allowed_origins = [
+      "https://${var.domain_name}",
+      "https://www.${var.domain_name}",
+    ]
     allowed_headers = ["*"]
     allowed_methods = ["GET"]
     max_age_seconds = 3000
   }
 }
 
-resource "aws_s3_bucket_policy" "site_bucket_policy" {
-  bucket = aws_s3_bucket.site_bucket.bucket
+# Add similar blocks for other file types (.mp4, .avi, etc.)
+resource "aws_s3_bucket_notification" "site_bucket_notification" {
+  bucket = aws_s3_bucket.site_bucket.id
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid       = "Grant CloudFront Origin Access Control access to S3 bucket",
-        Effect    = "Allow",
-        Principal = { Service = "cloudfront.amazonaws.com" },
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.site_bucket.arn}/*"
-      },
-      {
-        Sid       = "Deny non-secure transport",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:*",
-        Resource  = "${aws_s3_bucket.site_bucket.arn}/*",
-        Condition = {
-          Bool = { "aws:SecureTransport" = false }
-        }
-      }
-    ]
-  })
+  lambda_function {
+    lambda_function_arn = var.transcode_function_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = ""
+    filter_suffix       = ".mp4"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.transcode_function_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = ""
+    filter_suffix       = ".avi"
+  }
 }
-
-# S3 bucket for CloudPipeline deployment
-resource "aws_s3_bucket" "deployment_bucket" {
-  bucket = "${var.prefix}-deployment"
-}
-

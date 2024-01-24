@@ -34,13 +34,13 @@ resource "aws_codepipeline" "s3_pipeline" {
     name = "Build"
 
     action {
-      name            = "Build"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["source_output"]
-
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["build_output"]
 
       configuration = {
         ProjectName = var.codebuild_project
@@ -48,22 +48,22 @@ resource "aws_codepipeline" "s3_pipeline" {
     }
   }
 
-  stage {
-    name = "Deploy"
 
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "S3"
-      input_artifacts = ["source_output"]
-      version         = "1"
+  # stage {
+  #   name = "Deploy"
 
-      configuration = {
-        BucketName = var.domain_name
-        Extract    = "true"
-      }
-    }
-  }
+  #   action {
+  #     name            = "Deploy"
+  #     category        = "Deploy"
+  #     owner           = "AWS"
+  #     provider        = "S3"
+  #     input_artifacts = ["source_output"]
+  #     version         = "1"
+
+  #     configuration = {
+  #       BucketName = var.domain_name
+  #       Extract    = "true"
+  #     }
+  #   }
+  # }
 }
-
