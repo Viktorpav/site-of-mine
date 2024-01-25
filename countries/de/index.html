@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <title>Unsere schräge HTML-Seite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="description" content="Unsere erste Seite">
+  <meta name="keywords" content="HTML-Tutorial, Vorlage">
+
+  <style>
+    /* Globale Stile */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    /* Stile für den linken Abschnitt */
+    .left-section {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* Stile für den rechten Abschnitt */
+    .right-section {
+      flex: 2;
+      /* Dies anpassen, um den Videoabschnitt breiter zu machen */
+      display: flex;
+      flex-wrap: wrap;
+      /* Aktivieren Sie das Umwickeln für Videoelemente */
+      justify-content: flex-start;
+      /* Elemente am Anfang ausrichten */
+      align-items: flex-start;
+      /* Elemente oben ausrichten */
+      padding: 20px;
+      /* Fügen Sie etwas Padding für die Ästhetik hinzu */
+      height: 100vh;
+      overflow: auto;
+      /* Aktivieren Sie das Scrollen, wenn Videos den Abschnitt überlaufen */
+    }
+
+    /* Stile für Videoelemente */
+    .video-item {
+      flex: 1 1 33%;
+      /* Jedes Videoelement sollte etwa ein Drittel der Containerbreite einnehmen */
+      max-width: 33%;
+      /* Maximale Breite auf ein Drittel der Containerbreite begrenzen */
+      position: relative;
+      margin: 10px;
+      /* Fügen Sie etwas Abstand zwischen den Videoelementen hinzu */
+      box-sizing: border-box;
+      /* Schließen Sie Padding und Border in die Gesamtbreite und -höhe des Elements ein */
+    }
+
+    /* Stile für den Videocontainer */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      /* Beibehaltung eines Seitenverhältnisses von 16:9 */
+      overflow: hidden;
+      /* Ausblenden von Inhalten, die nicht in den Container passen */
+    }
+
+    #video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0);
+      /* Mache es unsichtbar, aber trotzdem interaktiv */
+    }
+
+    /* Größe des Videos angepasst, Box Shadow hinzugefügt und Standard-Styling für Video-Controls entfernt */
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Video auf Containergröße skalieren und dabei das Seitenverhältnis beibehalten */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      max-width: none;
+      max-height: none;
+    }
+
+    video::-webkit-media-controls,
+    video::-webkit-media-controls-enclosure,
+    video::-webkit-media-controls-panel {
+      display: none !important;
+    }
+
+    /* Ladeanzeige */
+    .loading {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Zeige die Ladeanzeige an, während das Video geladen wird */
+    video.loading {
+      opacity: 0;
+    }
+
+    div.loading .loading {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  Inhalt kommt hier hin. Immer mehr suchen wir nach
+  <a href="https://github.com/Viktorpav/site-of-mine">Link zum Repository der Website</a>
+  <div class="container">
+    <div class="left-section">
+      <h1>Videoinformationen</h1>
+      <p>Hier können Sie einige Informationen zum Video oder zusätzliche Informationen, die Sie anzeigen möchten,
+        bereitstellen.</p>
+      <h2>Kommentare</h2>
+      <div>
+        <!-- Fügen Sie hier Ihren Kommentarbereich-HTML-Code ein -->
+      </div>
+    </div>
+    <div class="right-section">
+      <!-- Wiederholen Sie diese Struktur für jedes Video -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video1" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Wird geladen...</div>
+        </div>
+      </div>
+      <!-- Fügen Sie weitere Videoelemente hier hinzu -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video2" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Wird geladen...</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video3" controls muted playsinline></video>
+          <div class="video-overlay"></div>
+          <div class="loading">Wird geladen...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script>
+    const videos = document.querySelectorAll('video');
+    const loadings = document.querySelectorAll('.loading');
+    const overlays = document.querySelectorAll('#video-overlay');
+    let isClicked = [false, false];
+    let mouseOverActive = [true, true];
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const clickEvent = isMobile ? 'touchstart' : 'click';
+    const videoUrls = ['https://www.pavlyshyn.space/converted/video-same/index.m3u8', 'https://www.pavlyshyn.space/converted/video2/index.m3u8', 'https://www.pavlyshyn.space/converted/s06e10.mp4'];
+
+    videos.forEach((video, i) => {
+      const loading = loadings[i];
+      const overlay = overlays[i];
+
+      function handleVideoLoad() {
+        video.classList.remove('loading');
+        loading.classList.remove('loading');
+      }
+
+      function handleError(event, data) {
+        if (data.fatal) {
+          console.error(`${data.type} Fehler aufgetreten, versuche Wiederherstellung...`);
+          data.type === Hls.ErrorTypes.NETWORK_ERROR ? hls.startLoad() : hls.recoverMediaError();
+        }
+      }
+
+      function handlePlay() {
+        if (!isClicked[i]) {
+          video.muted = false;
+          video.play().then(() => {
+            isClicked[i] = true;
+            mouseOverActive[i] = false;
+          }).catch(() => {
+            isClicked[i] = false;
+          });
+        } else {
+          video.pause();
+          isClicked[i] = false;
+        }
+      }
+
+      function handleMouseOver() {
+        if (mouseOverActive[i] && !isClicked[i] && video.paused && !isMobile) {
+          video.muted = true;  // Stelle sicher, dass das Video stummgeschaltet ist
+          video.play();
+        }
+      }
+
+      function handleMouseOut() {
+        if (mouseOverActive[i] && !isClicked[i]) {
+          video.pause();
+        }
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoUrls[i]);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_LOADING, handleVideoLoad);
+        hls.on(Hls.Events.MANIFEST_PARSED, handleVideoLoad);
+        hls.on(Hls.Events.ERROR, handleError);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrls[i];
+        video.addEventListener('loadedmetadata', handleVideoLoad);
+      } else {
+        video.innerHTML = "Ihr Browser unterstützt die Videowiedergabe nicht.";
+      }
+
+      overlay.addEventListener(clickEvent, handlePlay);
+      overlay.addEventListener('mouseover', handleMouseOver);
+      overlay.addEventListener('mouseout', handleMouseOut);
+    });
+  </script>
+
+</body>
+
+</html>

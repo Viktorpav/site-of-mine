@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Nuestra Página HTML Genial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="description" content="Nuestra primera página">
+  <meta name="keywords" content="tutorial de html, plantilla">
+
+  <style>
+    /* Estilos globales */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    /* Estilos de la sección izquierda */
+    .left-section {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* Estilos de la sección derecha */
+    .right-section {
+      flex: 2;
+      /* Ajusta esto para hacer la sección de video más ancha */
+      display: flex;
+      flex-wrap: wrap;
+      /* Habilita el retorno de línea para los elementos de video */
+      justify-content: flex-start;
+      /* Alinea los elementos al principio */
+      align-items: flex-start;
+      /* Alinea los elementos en la parte superior */
+      padding: 20px;
+      /* Agrega algo de relleno por estética */
+      height: 100vh;
+      overflow: auto;
+      /* Habilita el desplazamiento cuando los videos desbordan la sección */
+    }
+
+    /* Estilos del elemento de video */
+    .video-item {
+      flex: 1 1 33%;
+      /* Hace que cada elemento de video ocupe aproximadamente un tercio del ancho del contenedor */
+      max-width: 33%;
+      /* Limita el ancho máximo a un tercio del ancho del contenedor */
+      position: relative;
+      margin: 10px;
+      /* Agrega un poco de margen entre los elementos de video */
+      box-sizing: border-box;
+      /* Incluye el relleno y el borde en el ancho y alto total del elemento */
+    }
+
+    /* Estilos del contenedor de video */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      /* Mantiene una relación de aspecto de 16:9 */
+      overflow: hidden;
+      /* Oculta cualquier contenido que no quepa dentro del contenedor */
+    }
+
+    #video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0);
+      /* Hacerlo invisible pero aún interactivo */
+    }
+
+    /* Ajusta el tamaño del video, agrega una sombra y elimina el estilo predeterminado de los controles de video */
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Escala el video para llenar el contenedor manteniendo la relación de aspecto */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      max-width: none;
+      max-height: none;
+    }
+
+    video::-webkit-media-controls,
+    video::-webkit-media-controls-enclosure,
+    video::-webkit-media-controls-panel {
+      display: none !important;
+    }
+
+    /* Indicador de carga */
+    .loading {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Muestra el indicador de carga mientras se carga el video */
+    video.loading {
+      opacity: 0;
+    }
+
+    div.loading .loading {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  El contenido va aquí. Cada vez estamos buscando más y más.
+  <a href="https://github.com/Viktorpav/site-of-mine">Enlace al repositorio del sitio</a>
+  <div class="container">
+    <div class="left-section">
+      <h1>Información del Video</h1>
+      <p>Aquí puedes proporcionar algún texto sobre el video o cualquier información adicional que desees mostrar.</p>
+      <h2>Comentarios</h2>
+      <div>
+        <!-- Agrega tu HTML de sección de comentarios aquí -->
+      </div>
+    </div>
+    <div class="right-section">
+      <!-- Repite esta estructura para cada video -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video1" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Cargando...</div>
+        </div>
+      </div>
+      <!-- Agrega más elementos de video aquí -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video2" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Cargando...</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video3" controls muted playsinline></video>
+          <div class="video-overlay"></div>
+          <div class="loading">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script>
+    const videos = document.querySelectorAll('video');
+    const loadings = document.querySelectorAll('.loading');
+    const overlays = document.querySelectorAll('#video-overlay');
+    let isClicked = [false, false];
+    let mouseOverActive = [true, true];
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const clickEvent = isMobile ? 'touchstart' : 'click';
+    const videoUrls = ['https://www.pavlyshyn.space/converted/video-same/index.m3u8', 'https://www.pavlyshyn.space/converted/video2/index.m3u8', 'https://www.pavlyshyn.space/converted/s06e10.mp4'];
+
+    videos.forEach((video, i) => {
+      const loading = loadings[i];
+      const overlay = overlays[i];
+
+      function handleVideoLoad() {
+        video.classList.remove('loading');
+        loading.classList.remove('loading');
+      }
+
+      function handleError(event, data) {
+        if (data.fatal) {
+          console.error(`${data.type} error occurred, trying to recover...`);
+          data.type === Hls.ErrorTypes.NETWORK_ERROR ? hls.startLoad() : hls.recoverMediaError();
+        }
+      }
+
+      function handlePlay() {
+        if (!isClicked[i]) {
+          video.muted = false;
+          video.play().then(() => {
+            isClicked[i] = true;
+            mouseOverActive[i] = false;
+          }).catch(() => {
+            isClicked[i] = false;
+          });
+        } else {
+          video.pause();
+          isClicked[i] = false;
+        }
+      }
+
+      function handleMouseOver() {
+        if (mouseOverActive[i] && !isClicked[i] && video.paused && !isMobile) {
+          video.muted = true;  // Asegura que el video esté silenciado
+          video.play();
+        }
+      }
+
+      function handleMouseOut() {
+        if (mouseOverActive[i] && !isClicked[i]) {
+          video.pause();
+        }
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoUrls[i]);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_LOADING, handleVideoLoad);
+        hls.on(Hls.Events.MANIFEST_PARSED, handleVideoLoad);
+        hls.on(Hls.Events.ERROR, handleError);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrls[i];
+        video.addEventListener('loadedmetadata', handleVideoLoad);
+      } else {
+        video.innerHTML = "Tu navegador no admite la reproducción de video.";
+      }
+
+      overlay.addEventListener(clickEvent, handlePlay);
+      overlay.addEventListener('mouseover', handleMouseOver);
+      overlay.addEventListener('mouseout', handleMouseOut);
+    });
+  </script>
+</body>
+
+</html>

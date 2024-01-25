@@ -1,17 +1,42 @@
-// This function redirects incoming requests to the equivalent URL with "www." in the host header
 function handler(event) {
-    try {
-        var request = event.request;
-        var host = request.headers.host.value;
-        var path = request.uri;
+    const request = event.request;
+    const headers = request.headers;
+    const host = request.headers.host.value;
+    const countryDE = Symbol.for('DE');
+    const countryES = Symbol.for('ES');
+    let newurl;
 
+    if (headers['cloudfront-viewer-country']) {
+        const countryCode = Symbol.for(headers['cloudfront-viewer-country'].value);
+        if (countryCode === countryDE) {
+            newurl = `https://${host}/de/index.html`; // Redirect German users
+        } else if (countryCode === countryES) {
+            newurl = `https://${host}/es/index.html`; // Redirect Spanish users
+        } else {
+            newurl = `https://${host}/index.html`; // Redirect other country users to a default path
+        }
+
+        const response = {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+                location: {
+                    value: newurl
+                }
+            }
+        };
+
+        return response;
+    }
+
+    try {
         if (!host.startsWith("www.")) {
             return {
                 statusCode: 301,
                 statusDescription: "Permanently moved",
                 headers: {
                     location: {
-                        value: "https://www." + host + path,
+                        value: "https://www." + host + request.uri,
                     },
                 },
             };
@@ -21,9 +46,9 @@ function handler(event) {
     } catch (err) {
         console.error(err);
 
-        var errorStatusCode;
-        var errorStatusDescription;
-        var errorBody;
+        let errorStatusCode;
+        let errorStatusDescription;
+        let errorBody;
 
         if (err instanceof Error) {
             errorStatusCode = 500;
